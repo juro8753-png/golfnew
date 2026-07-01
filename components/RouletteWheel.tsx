@@ -66,7 +66,25 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   useEffect(() => {
     const img = new Image()
     img.src = '/rod.png'
-    img.onload = () => { rodImgRef.current = img }
+    img.onload = () => {
+      const oc = document.createElement('canvas')
+      oc.width = img.naturalWidth
+      oc.height = img.naturalHeight
+      const octx = oc.getContext('2d')!
+      octx.drawImage(img, 0, 0)
+      const imgData = octx.getImageData(0, 0, oc.width, oc.height)
+      const d = imgData.data
+      for (let j = 0; j < d.length; j += 4) {
+        const r = d[j], g = d[j + 1], b = d[j + 2]
+        // 밝고 채도 낮은 픽셀(흰/회색 배경)만 투명 처리 — 금색 픽셀은 chroma가 크므로 보존
+        const chroma = Math.max(r, g, b) - Math.min(r, g, b)
+        if (r > 180 && g > 180 && b > 180 && chroma < 50) d[j + 3] = 0
+      }
+      octx.putImageData(imgData, 0, 0)
+      const processed = new Image()
+      processed.onload = () => { rodImgRef.current = processed }
+      processed.src = oc.toDataURL()
+    }
   }, [])
 
 
