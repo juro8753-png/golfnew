@@ -1,0 +1,28 @@
+
+> screen-golf-lottery@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 3.9s
+ ○ Compiling / ...
+ ✓ Compiled / in 10.3s (460 modules)
+ GET / 200 in 10860ms
+ ○ Compiling /api/prizes ...
+ ✓ Compiled /api/prizes in 3.3s (256 modules)
+ GET /api/prizes 200 in 3441ms
+ GET /api/prizes 200 in 20ms
+ ✓ Compiled /api/spin in 186ms (259 modules)
+ POST /api/spin 200 in 256ms
+ GET /api/prizes 200 in 31ms
+ POST /api/spin 200 in 15ms
+ GET /api/prizes 200 in 116ms
+ POST /api/spin 200 in 16ms
+ GET /api/prizes 200 in 14ms

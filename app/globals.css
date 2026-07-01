@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+body {
+  background: #0d0719;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  box-sizing: border-box;
+}
+
+html, body {
+  overscroll-behavior: none;
+}
+
+/* ── 폭죽 배너 디자인 키프레임 ── */
+@keyframes tw {
+  0%,100% { transform: scale(.88); filter: brightness(.85); }
+  50%      { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+@keyframes floatY {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes fukPulse {
+  0%,100% { text-shadow: 0 0 14px rgba(245,200,90,.6), 0 2px 4px rgba(0,0,0,.5); }
+  50%     { text-shadow: 0 0 30px rgba(245,210,110,1),  0 2px 4px rgba(0,0,0,.5); }
+}
+
+@keyframes btnGlow {
+  0%,100% { box-shadow: 0 0 18px 2px rgba(245,200,90,.55), inset 0 1px 0 rgba(255,255,255,.4); }
+  50%     { box-shadow: 0 0 34px 7px rgba(245,200,90,.9),  inset 0 1px 0 rgba(255,255,255,.5); }
+}
+
+@keyframes btnNeonGlow {
+  0%,100% { box-shadow: 0 0 0 1px #8000cc, 0 0 18px 4px rgba(192,64,255,.7), inset 0 1px 0 rgba(255,255,255,.2); }
+  50%     { box-shadow: 0 0 0 1px #aa00ee, 0 0 38px 12px rgba(224,80,255,1),  inset 0 1px 0 rgba(255,255,255,.35); }
+}
+
+@keyframes sheen {
+  0%       { background-position: -160% 0; }
+  60%,100% { background-position: 260% 0; }
+}
+
+@keyframes arrowNudge {
+  0%,100% { transform: translateX(0); }
+  50%     { transform: translateX(4px); }
+}
+
+@keyframes triGlow {
+  0%,100% { filter: drop-shadow(0 0 2px rgba(255,210,0,.4)) drop-shadow(0 0 4px rgba(255,180,0,.2)); }
+  50%     { filter: drop-shadow(0 0 14px rgba(255,220,0,1)) drop-shadow(0 0 28px rgba(255,180,0,.85)) drop-shadow(0 0 42px rgba(255,150,0,.5)); }
+}
+
+/* ── 기존 모달 키프레임 ── */
+@keyframes modal-bounce-in {
+  0%   { transform: scale(0.2) rotate(-6deg); opacity: 0; }
+  55%  { transform: scale(1.1) rotate(2deg);  opacity: 1; }
+  75%  { transform: scale(0.94) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes win-glow {
+  0%,100% { box-shadow: 0 0 24px 8px rgba(255,215,0,.55), 0 0 60px 20px rgba(255,165,0,.25); }
+  50%     { box-shadow: 0 0 50px 18px rgba(255,215,0,.9), 0 0 110px 45px rgba(255,165,0,.55); }
+}
+
+@keyframes consolation-shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-9px); }
+  40%     { transform: translateX(9px); }
+  60%     { transform: translateX(-6px); }
+  80%     { transform: translateX(6px); }
+}
+
+.modal-bounce-in  { animation: modal-bounce-in 0.65s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+.win-glow         { animation: win-glow 1.6s ease-in-out infinite; }
+.consolation-shake { animation: consolation-shake 0.55s ease-in-out forwards; }
+
+@keyframes sunRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes limitToastAnim {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+}
+.limit-toast { animation: limitToastAnim 2.5s ease-in-out forwards; }
+
+/* ── 모바일 상단 고정 로고 ── */
+@media (max-width: 767px) {
+  .logo-fixed-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0 12px;
+  }
+  .logo-fixed-mobile img {
+    width: 150px !important;
+    height: auto !important;
+  }
+  .logo-mobile-pt {
+    justify-content: flex-start !important;
+    padding-top: 100px !important;
+    padding-bottom: 0 !important;
+  }
+  .roulette-center-mobile {
+    justify-content: flex-start !important;
+    padding-bottom: 0 !important;
+  }
+  .landing-center-mobile {
+    justify-content: flex-start !important;
+    padding-top: 200px !important;
+  }
+}
