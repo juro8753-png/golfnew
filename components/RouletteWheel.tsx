@@ -221,14 +221,15 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.fill()
         })
 
-        // 4. Rod images on divider spokes (from 52*s to 390*s)
+        // 4. Rod images on divider spokes (center → outer gold ring)
         prizes.forEach((_, i) => {
           const ea = -Math.PI / 2 - segAngle / 2 + i * segAngle
           if (rodImgRef.current) {
-            const rodLength = (390 - 52) * s
-            const aspectRatio = rodImgRef.current.naturalWidth / rodImgRef.current.naturalHeight
-            const rodWidth = rodLength * aspectRatio
-            const midR = (52 + 390) / 2 * s
+            const innerR = 0          // 내부 공은 허브/로고 아래 숨겨짐
+            const outerR = 393 * s    // 외곽 골드링 안쪽
+            const rodLength = outerR - innerR
+            const rodWidth = 16 * s   // 고정 좁은 너비
+            const midR = outerR / 2
             const midX = Math.cos(ea) * midR
             const midY = Math.sin(ea) * midR
             ctx.save()
