@@ -256,7 +256,7 @@ export default function AdminDashboard() {
           <table className="w-full text-sm">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="text-left px-3 py-3 font-semibold hidden sm:table-cell">순서</th>
+                <th className="text-left px-3 py-3 font-semibold">순서</th>
                 <th className="text-left px-3 py-3 font-semibold">상품명</th>
                 <th className="px-3 py-3 font-semibold text-center">수량</th>
                 <th className="px-2 py-3 font-semibold text-center w-20 sm:w-28">확률(%)</th>
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
                 const p = prizes[i]
                 return p ? (
                   <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-3 py-3 text-gray-400 hidden sm:table-cell">{i + 1}</td>
+                    <td className="px-3 py-3 text-gray-400">{i + 1}</td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium">{p.name}</span>
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
                   </tr>
                 ) : (
                   <tr key={`empty-${i}`} className="border-t border-gray-100 bg-gray-50/50">
-                    <td className="px-3 py-3 text-gray-300 hidden sm:table-cell">{i + 1}</td>
+                    <td className="px-3 py-3 text-gray-300">{i + 1}</td>
                     <td className="px-3 py-3 text-gray-300 text-sm">— 미설정 —</td>
                     <td className="px-3 py-3 text-center text-gray-300">—</td>
                     <td className="px-2 py-2 text-center text-gray-300">—</td>
