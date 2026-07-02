@@ -378,7 +378,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             ctx.fillText(numPart, startX, rankY)
             ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.6, rankY + sfxFontSize * 0.6)
-            ctx.fillText(sfxPart, startX + numW, rankY + (numFontSize - sfxFontSize) / 2)
+            ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
             ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
             ctx.fillStyle = mkG(rankY - numFontSize * 0.6, rankY + numFontSize * 0.6)
