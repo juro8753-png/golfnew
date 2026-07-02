@@ -246,7 +246,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             const innerR = 0          // 내부 공은 허브/로고 아래 숨겨짐
             const outerR = 393 * s    // 외곽 골드링 안쪽
             const rodLength = outerR - innerR
-            const rodWidth = rodLength * (rodImgRef.current.naturalWidth / rodImgRef.current.naturalHeight)
+            const rodWidth = Math.min(rodLength * (rodImgRef.current.naturalWidth / rodImgRef.current.naturalHeight), 26 * s)
             const midR = outerR / 2
             const midX = Math.cos(ea) * midR
             const midY = Math.sin(ea) * midR
