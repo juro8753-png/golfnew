@@ -10,16 +10,8 @@ import { BG_THEMES, getSavedBg, ROULETTE_BG_KEY } from '@/lib/bg-themes'
 import { soundEngine } from '@/lib/sounds'
 
 export default function Home() {
-  const [prizes, setPrizes] = useState<Prize[]>(() => {
-    try {
-      const cached = sessionStorage.getItem('prizes_cache')
-      if (cached) return JSON.parse(cached) as Prize[]
-    } catch {}
-    return []
-  })
-  const [loading, setLoading] = useState(() => {
-    try { return !sessionStorage.getItem('prizes_cache') } catch { return true }
-  })
+  const [prizes, setPrizes] = useState<Prize[]>([])
+  const [loading, setLoading] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [bgGradient, setBgGradient] = useState(BG_THEMES.indigo_black.gradient)
 
@@ -36,7 +28,16 @@ export default function Home() {
     }
   }, [])
 
-  useEffect(() => { fetchPrizes() }, [fetchPrizes])
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem('prizes_cache')
+      if (cached) {
+        setPrizes(JSON.parse(cached) as Prize[])
+        setLoading(false)
+      }
+    } catch {}
+    fetchPrizes()
+  }, [fetchPrizes])
   useEffect(() => { setBgGradient(BG_THEMES[getSavedBg(ROULETTE_BG_KEY)].gradient) }, [])
   useEffect(() => {
     soundEngine.bgStart()
