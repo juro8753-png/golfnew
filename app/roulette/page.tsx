@@ -10,7 +10,9 @@ import { soundEngine } from '@/lib/sounds'
 export default function Home() {
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [loading, setLoading] = useState(true)
-  const [isPortrait, setIsPortrait] = useState(false)
+  const [isPortrait, setIsPortrait] = useState(() =>
+    typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : false
+  )
   const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
