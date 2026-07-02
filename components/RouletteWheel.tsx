@@ -490,21 +490,21 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           if (numMatch) {
             const numPart = numMatch[1]
             const sfxPart = numMatch[2]
-            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.font = `900 ${numFontSize}px "Noto Serif KR", serif`
             const numW = ctx.measureText(numPart).width
-            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.font = `900 ${sfxFontSize}px "Noto Serif KR", serif`
             const sfxW = ctx.measureText(sfxPart).width
             const startX = cx_t + textXOff - (numW + sfxW) / 2
             ctx.textAlign = 'left'
-            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.font = `900 ${numFontSize}px "Noto Serif KR", serif`
             ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.fillText(numPart, startX, rankY)
-            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.font = `900 ${sfxFontSize}px "Noto Serif KR", serif`
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
             const luckyFontSize = Math.round(28 * mobileShrink)
-            ctx.font = `900 ${luckyFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.font = `900 ${luckyFontSize}px "Noto Serif KR", serif`
             ctx.fillStyle = mkG(rankY - luckyFontSize * 0.8, rankY + luckyFontSize * 0.2)
             ctx.textAlign = 'left'
             {
