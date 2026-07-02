@@ -26,6 +26,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#2a1342" />
         <link rel="apple-touch-icon" href="/icon.svg" />
         <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@700;900&family=Song+Myung&display=swap" rel="stylesheet" />
+        {process.env.NODE_ENV === 'development' && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(regs) {
+                regs.forEach(function(r) { r.unregister(); });
+              });
+            }
+          `}} />
+        )}
       </head>
       <body>{children}</body>
     </html>
