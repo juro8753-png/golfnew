@@ -67,7 +67,7 @@ export default function Home() {
         position: 'absolute', inset: 0, zIndex: 2,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        paddingBottom: '18%',
+        paddingBottom: '9%',
       }}>
         {loading ? (
           <div style={{ color: 'white', fontSize: 20 }}>불러오는 중…</div>
@@ -87,7 +87,7 @@ export default function Home() {
           onClick={triggerSpin}
           style={{
             position: 'absolute',
-            bottom: '8%',
+            bottom: '4%',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '55%',
