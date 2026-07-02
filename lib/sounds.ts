@@ -59,22 +59,27 @@ class SoundEngine {
     })
   }
 
-  // 짧은 클릭 틱 (세그먼트 넘어갈 때)
+  // AudioContext 잠금 해제 (유저 제스처 컨텍스트에서 호출)
+  unlock() {
+    if (!this.ctx) this.ctx = new AudioContext()
+    if (this.ctx.state === 'suspended') this.ctx.resume()
+  }
+
+  // 부드러운 틱 (세그먼트 넘어갈 때) — 사인파 기반
   tick(speed: number) {
     const ac = this.ac
     const t = ac.currentTime
-    const buf = ac.createBuffer(1, ac.sampleRate * 0.04, ac.sampleRate)
-    const data = buf.getChannelData(0)
-    for (let i = 0; i < data.length; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ac.sampleRate * 0.008))
-    }
-    const src = ac.createBufferSource()
-    src.buffer = buf
+    const osc = ac.createOscillator()
     const gain = ac.createGain()
-    gain.gain.setValueAtTime(Math.min(0.15 + speed * 0.25, 0.4), t)
-    src.connect(gain)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(700 + speed * 300, t)
+    osc.frequency.exponentialRampToValueAtTime(250, t + 0.055)
+    gain.gain.setValueAtTime(Math.min(0.08 + speed * 0.12, 0.22), t)
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06)
+    osc.connect(gain)
     gain.connect(ac.destination)
-    src.start(t)
+    osc.start(t)
+    osc.stop(t + 0.07)
   }
 
   // 회전 시작 휘파람

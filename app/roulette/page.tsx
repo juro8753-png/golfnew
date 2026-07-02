@@ -50,6 +50,7 @@ export default function Home() {
   }, [])
 
   const triggerSpin = () => {
+    soundEngine.unlock()
     const btn = document.getElementById('roulette-spin-btn') as HTMLButtonElement | null
     if (btn && !btn.disabled) btn.click()
   }
