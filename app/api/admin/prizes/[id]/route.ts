@@ -15,7 +15,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       is_unlimited: !!body.is_unlimited,
       is_consolation: !!body.is_consolation,
       color: body.color,
-      display_order: Number(body.display_order ?? 0),
       probability: Number(body.probability ?? 0),
     })
 

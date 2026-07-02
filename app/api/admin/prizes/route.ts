@@ -10,7 +10,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, total_quantity, is_unlimited, is_consolation, color, display_order, probability } = body
+  const { name, total_quantity, is_unlimited, is_consolation, color, probability } = body
 
   if (!name || total_quantity == null) {
     return NextResponse.json({ error: '이름과 수량은 필수입니다.' }, { status: 400 })
@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
     is_unlimited: !!is_unlimited,
     is_consolation: !!is_consolation,
     color: color || '#36A2EB',
-    display_order: Number(display_order ?? 0),
     probability: Number(probability ?? 0),
   })
 
