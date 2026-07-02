@@ -45,9 +45,11 @@ export default function LandingPage() {
   useEffect(() => {
     setBgGradient(BG_THEMES[getSavedBg(LANDING_BG_KEY)].gradient)
     router.prefetch('/roulette')
+    // prizes 캐시 채우기 + today-count로 Supabase 미리 깨우기 (spin API 콜드스타트 방지)
     fetch('/api/prizes').then(r => r.json()).then(data => {
       if (Array.isArray(data)) sessionStorage.setItem('prizes_cache', JSON.stringify(data))
     }).catch(() => {})
+    fetch('/api/today-count').catch(() => {})
     // 현재 방향에 맞는 이미지 즉시 미리 로드, 반대 방향은 2초 후
     const isPortraitNow = window.innerHeight > window.innerWidth
     const primarySrc = isPortraitNow ? '/roulette-bg-portrait.png' : '/roulette-bg.png'
