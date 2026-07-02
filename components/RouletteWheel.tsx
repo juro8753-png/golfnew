@@ -1401,6 +1401,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
       {/* 돌리기 버튼 */}
       <button
+        id="roulette-spin-btn"
         onClick={spin}
         disabled={spinning}
         className="relative select-none overflow-hidden"

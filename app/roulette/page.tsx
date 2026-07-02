@@ -40,40 +40,67 @@ export default function Home() {
     return () => soundEngine.bgPause()
   }, [])
 
-  return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', fontFamily: "'Noto Sans KR', sans-serif" }}>
+  const triggerSpin = () => {
+    const btn = document.getElementById('roulette-spin-btn') as HTMLButtonElement | null
+    if (btn && !btn.disabled) btn.click()
+  }
 
-      {/* 배경 이미지 */}
+  return (
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#000', fontFamily: "'Noto Sans KR', sans-serif" }}>
+
+      {/* 배경 이미지 — contain으로 전체 보이게 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/roulette-bg.png"
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block' }}
       />
 
-      {/* 폭죽 + 반짝이 (이미지 위) */}
+      {/* 폭죽 + 반짝이 */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
         <FireworksBackground />
         <SparklesOverlay />
       </div>
 
-      {/* 룰렛 휠 + 버튼 */}
-      <div
-        style={{
-          position: 'absolute', inset: 0, zIndex: 2,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          padding: '16px',
-        }}
-      >
+      {/* 룰렛 휠 (돌리기 버튼 숨김) */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 2,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        paddingBottom: '18%',
+      }}>
         {loading ? (
           <div style={{ color: 'white', fontSize: 20 }}>불러오는 중…</div>
         ) : prizes.length === 0 ? (
           <div style={{ color: '#f4c64a', fontSize: 18 }}>등록된 상품이 없습니다.</div>
         ) : (
-          <RouletteWheel prizes={prizes} onSpinComplete={fetchPrizes} />
+          <div style={{ width: '100%' }}>
+            <style>{`#roulette-spin-btn { display: none !important; }`}</style>
+            <RouletteWheel prizes={prizes} onSpinComplete={fetchPrizes} />
+          </div>
         )}
       </div>
+
+      {/* 이미지 버튼 위 투명 클릭 영역 */}
+      {prizes.length > 0 && (
+        <button
+          onClick={triggerSpin}
+          style={{
+            position: 'absolute',
+            bottom: '8%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '55%',
+            height: '9%',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            zIndex: 3,
+            WebkitTapHighlightColor: 'transparent',
+          }}
+          aria-label="오늘의 행운 뽑기"
+        />
+      )}
     </div>
   )
 }
