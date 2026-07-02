@@ -503,8 +503,9 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
-            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
-            ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
+            const luckyFontSize = Math.round(28 * mobileShrink)
+            ctx.font = `900 ${luckyFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
+            ctx.fillStyle = mkG(rankY - luckyFontSize * 0.8, rankY + luckyFontSize * 0.2)
             ctx.textAlign = 'left'
             {
               const ch0 = '행', ch1 = '운', ch2 = '상'
