@@ -10,6 +10,14 @@ import { soundEngine } from '@/lib/sounds'
 export default function Home() {
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [loading, setLoading] = useState(true)
+  const [isPortrait, setIsPortrait] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsPortrait(window.innerHeight > window.innerWidth)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const fetchPrizes = useCallback(async () => {
     try {
@@ -53,7 +61,7 @@ export default function Home() {
       <img
         src="/roulette-bg.png"
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: isPortrait ? 'center 78%' : 'center', display: 'block' }}
       />
 
       {/* 폭죽 + 반짝이 */}
@@ -67,7 +75,7 @@ export default function Home() {
         position: 'absolute', inset: 0, zIndex: 2,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        paddingBottom: '9%',
+        paddingBottom: isPortrait ? '28%' : '9%',
       }}>
         {loading ? (
           <div style={{ color: 'white', fontSize: 20 }}>불러오는 중…</div>
@@ -87,10 +95,10 @@ export default function Home() {
           onClick={triggerSpin}
           style={{
             position: 'absolute',
-            bottom: '4%',
+            bottom: isPortrait ? '5%' : '4%',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '55%',
+            width: isPortrait ? '70%' : '55%',
             height: '9%',
             background: 'transparent',
             border: 'none',
