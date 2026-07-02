@@ -48,6 +48,9 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>()
   const hubLogoImgRef = useRef<HTMLImageElement | null>(null)
   const pointerImgRef = useRef<HTMLImageElement | null>(null)
+  const crownCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const laurelCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const giftBoxCanvasesRef = useRef<(HTMLCanvasElement | null)[]>([null, null, null, null, null, null])
   const router = useRouter()
 
   useEffect(() => {
@@ -62,6 +65,76 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
     img.onload = () => { pointerImgRef.current = img }
   }, [])
 
+  useEffect(() => {
+    const img = new Image()
+    img.src = '/crown2.png'
+    img.onload = () => {
+      const off = document.createElement('canvas')
+      off.width  = img.naturalWidth
+      off.height = img.naturalHeight
+      const offCtx = off.getContext('2d')!
+      offCtx.drawImage(img, 0, 0)
+      const imageData = offCtx.getImageData(0, 0, off.width, off.height)
+      const d = imageData.data
+      for (let j = 0; j < d.length; j += 4) {
+        const r = d[j], g = d[j+1], b = d[j+2]
+        const range = Math.max(r, g, b) - Math.min(r, g, b)
+        if (r > 220 && g > 220 && b > 220 && range < 40) d[j+3] = 0
+      }
+      offCtx.putImageData(imageData, 0, 0)
+      crownCanvasRef.current = off
+    }
+  }, [])
+
+  useEffect(() => {
+    const img = new Image()
+    img.src = '/laurel2.png'
+    img.onload = () => {
+      const off = document.createElement('canvas')
+      off.width  = img.naturalWidth
+      off.height = img.naturalHeight
+      const offCtx = off.getContext('2d')!
+      offCtx.drawImage(img, 0, 0)
+      const imageData = offCtx.getImageData(0, 0, off.width, off.height)
+      const d = imageData.data
+      for (let j = 0; j < d.length; j += 4) {
+        const r = d[j], g = d[j+1], b = d[j+2]
+        if (r > 200 && g > 200 && b > 200) d[j+3] = 0
+      }
+      offCtx.putImageData(imageData, 0, 0)
+      laurelCanvasRef.current = off
+    }
+  }, [])
+
+  useEffect(() => {
+    const segColors: (string | null)[] = ['#c060ff', null, null, '#8060e0', null, null]
+    const img = new Image()
+    img.src = '/giftbox.png'
+    img.onload = () => {
+      segColors.forEach((color, i) => {
+        if (!color) return
+        const off = document.createElement('canvas')
+        off.width  = img.naturalWidth
+        off.height = img.naturalHeight
+        const oc = off.getContext('2d')!
+        // 흰 배경 제거 → 검정 실루엣만 남김
+        oc.drawImage(img, 0, 0)
+        const id = oc.getImageData(0, 0, off.width, off.height)
+        const d = id.data
+        for (let j = 0; j < d.length; j += 4) {
+          if (d[j] > 200 && d[j+1] > 200 && d[j+2] > 200) {
+            d[j+3] = 0  // 흰색 → 투명 (리본 라인도 자동으로 투명)
+          }
+        }
+        oc.putImageData(id, 0, 0)
+        // 검정 픽셀을 세그먼트 색으로 채색
+        oc.globalCompositeOperation = 'source-in'
+        oc.fillStyle = color
+        oc.fillRect(0, 0, off.width, off.height)
+        giftBoxCanvasesRef.current[i] = off
+      })
+    }
+  }, [])
 
 
   // 테마 변경 감지
@@ -333,8 +406,30 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
         ]
         const nameColors = ['#f0d8ff', '#3a1200', '#c8e4ff', '#d8ccff', '#3a1200', '#c0f0ff']
         const numFontSize = 36
-        const sfxFontSize = 24
+        const sfxFontSize = 30
         const nameFontSize = 15
+
+        // 선물박스 아이콘 (보라 세그먼트, 상품명 아래)
+        prizes.forEach((_, i) => {
+          if (i !== 0 && i !== 3) return
+          const gbCanvas = giftBoxCanvasesRef.current[i]
+          if (!gbCanvas) return
+          const midAngle = -Math.PI / 2 - segAngle / 2 + i * segAngle + segAngle / 2
+          const contentR = 245 * s
+          const cx_t = Math.cos(midAngle) * contentR
+          const cy_t = Math.sin(midAngle) * contentR
+          const nameY  = cy_t + numFontSize * 0.65
+
+          const drawW = 26 * s
+          const drawH = drawW * (gbCanvas.height / gbCanvas.width)
+          const iconY  = nameY + drawH * 0.5 + (i === 0 ? 50 : 65) * s
+
+          ctx.save()
+          ctx.translate(cx_t, iconY)
+          ctx.globalAlpha = 0.5
+          ctx.drawImage(gbCanvas, -drawW / 2, -drawH / 2, drawW, drawH)
+          ctx.restore()
+        })
 
         prizes.forEach((prize, i) => {
           const midAngle = -Math.PI / 2 - segAngle / 2 + i * segAngle + segAngle / 2
@@ -382,57 +477,106 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
-            ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
+            ctx.font = `900 30px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.fillStyle = mkG(rankY - 30 * 0.8, rankY + 30 * 0.2)
             ctx.textAlign = 'center'
             ctx.fillText(rankLabel, cx_t, rankY)
           }
           ctx.textBaseline = 'middle'
 
+          // ── 월계수 (1등 좌우) ──
+          if (i === 0 && laurelCanvasRef.current) {
+            const lc  = laurelCanvasRef.current
+            const lh  = 58 * s
+            const lw  = lh * (lc.width / lc.height)
+            const gap = 42 * s
+
+            // 반지름에 수직인 좌우 방향 벡터
+            const perpX = -Math.sin(midAngle)
+            const perpY =  Math.cos(midAngle)
+
+            // 텍스트 중앙 기준 좌우 중심점
+            const textCX = cx_t
+            const textCY = rankY - numFontSize * 0.28
+
+            ctx.filter = 'invert(1) sepia(1) saturate(10) hue-rotate(5deg) brightness(1.1)'
+
+            // 왼쪽
+            ctx.save()
+            ctx.translate(textCX - perpX * (gap + lw / 2), textCY - perpY * (gap + lw / 2))
+            ctx.rotate(midAngle + Math.PI / 2)
+            ctx.drawImage(lc, -lw / 2, -lh / 2, lw, lh)
+            ctx.restore()
+
+            // 오른쪽 (좌우 반전)
+            ctx.save()
+            ctx.translate(textCX + perpX * (gap + lw / 2 + 6 * s), textCY + perpY * (gap + lw / 2 + 6 * s))
+            ctx.rotate(midAngle + Math.PI / 2)
+            ctx.scale(-1, 1)
+            ctx.drawImage(lc, -lw / 2, -lh / 2, lw, lh)
+            ctx.restore()
+
+            ctx.filter = 'none'
+          }
+
+          // ── 왕관 이미지 (1등 세그먼트만) ──
+          if (i === 0 && crownCanvasRef.current) {
+            const crownW = 75 * s
+            const crownH = crownW * (crownCanvasRef.current.height / crownCanvasRef.current.width)
+            const crownR  = contentR + numFontSize * 1.1
+            const crownCX = Math.cos(midAngle) * crownR
+            const crownCY = Math.sin(midAngle) * crownR
+            ctx.save()
+            ctx.translate(crownCX, crownCY)
+            ctx.rotate(midAngle + Math.PI / 2)
+            ctx.drawImage(crownCanvasRef.current, -crownW / 2, -crownH, crownW, crownH)
+            ctx.restore()
+          }
+
           // ── 상품명 ──
           ctx.shadowBlur = 0
           ctx.shadowOffsetY = 0
           ctx.fillStyle = nameColors[i] ?? '#ffffff'
-          ctx.font = `bold ${nameFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
           ctx.textAlign = 'center'
 
-          // 세그먼트 가용 너비 (반지름 245에서 60° 세그먼트의 현 길이 × 여유율)
-          const maxW = 120 * s
+          // 세그먼트 실제 가용 너비 (60° 섹터 반지름 × sin30° × 2 × 여유율)
+          const maxW = 175 * s
 
-          // 단어/글자 단위로 maxW 넘으면 다음 줄로
-          const wrapLines = (text: string): string[] => {
+          const wrapLines = (text: string, fw: number): string[] => {
             const tokens = text.split(' ')
             const lines: string[] = []
             let cur = ''
             for (const token of tokens) {
               const test = cur ? `${cur} ${token}` : token
-              if (ctx.measureText(test).width <= maxW) {
+              if (ctx.measureText(test).width <= fw) {
                 cur = test
               } else {
                 if (cur) lines.push(cur)
-                // 단어 자체가 너무 길면 글자 단위로 쪼갬
-                if (ctx.measureText(token).width > maxW) {
+                if (ctx.measureText(token).width > fw) {
                   let charBuf = ''
                   for (const ch of token) {
-                    if (ctx.measureText(charBuf + ch).width <= maxW) {
-                      charBuf += ch
-                    } else {
-                      if (charBuf) lines.push(charBuf)
-                      charBuf = ch
-                    }
+                    if (ctx.measureText(charBuf + ch).width <= fw) charBuf += ch
+                    else { if (charBuf) lines.push(charBuf); charBuf = ch }
                   }
                   cur = charBuf
-                } else {
-                  cur = token
-                }
+                } else { cur = token }
               }
             }
             if (cur) lines.push(cur)
             return lines
           }
 
-          const lines = wrapLines(prize.name)
-          const lineH = nameFontSize * 1.25
+          // 글자 크기 자동 축소: 3줄 초과 시 줄어듦
+          let curFontSize = nameFontSize
+          let lines: string[] = []
+          for (let attempt = 0; attempt < 6; attempt++) {
+            ctx.font = `bold ${curFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            lines = wrapLines(prize.name, maxW)
+            if (lines.length <= 3) break
+            curFontSize = Math.max(8, curFontSize - 2)
+          }
+
+          const lineH = curFontSize * 1.25
           const totalH = (lines.length - 1) * lineH
           lines.forEach((line, li) => {
             ctx.fillText(line, cx_t, nameY - totalH / 2 + li * lineH)
