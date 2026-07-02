@@ -39,7 +39,7 @@ export const db = {
         .eq('id', id)
         .select()
         .single()
-      if (error) return null
+      if (error) throw new Error(error.message)
       return data as Prize
     },
 
