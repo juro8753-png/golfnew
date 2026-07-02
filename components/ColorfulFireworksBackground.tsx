@@ -48,7 +48,9 @@ export default function ColorfulFireworksBackground() {
     let frameId: number
     let t = 0
     let ctx: CanvasRenderingContext2D | null = null
-    const MAX_SPARKS = 280
+    const isMobile = window.innerWidth < 768
+    const MAX_SPARKS = isMobile ? 120 : 280
+    const STAR_COUNT = isMobile ? 20 : 45
 
     const init = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -59,7 +61,7 @@ export default function ColorfulFireworksBackground() {
       ctx = canvas.getContext('2d')
       if (!ctx) return
       ctx.scale(dpr, dpr)
-      stars = Array.from({ length: 45 }, () => ({
+      stars = Array.from({ length: STAR_COUNT }, () => ({
         x: Math.random() * W,
         y: Math.random() * H * 0.85,
         r: Math.random() * 1.4 + 0.3,
@@ -125,9 +127,14 @@ export default function ColorfulFireworksBackground() {
       ctx.globalAlpha = 1
 
       // 발사 타이밍
-      if (t % 28 === 0) launch()
-      if (t % 55 === 0) launch()
-      if (t % 90 === 0) { launch(); launch() }
+      if (isMobile) {
+        if (t % 55 === 0) launch()
+        if (t % 110 === 0) launch()
+      } else {
+        if (t % 28 === 0) launch()
+        if (t % 55 === 0) launch()
+        if (t % 90 === 0) { launch(); launch() }
+      }
 
       // 로켓 — 꼬리를 선으로
       for (let i = rockets.length - 1; i >= 0; i--) {

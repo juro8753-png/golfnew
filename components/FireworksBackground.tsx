@@ -39,7 +39,9 @@ export default function FireworksBackground() {
     let frameId: number
     let t = 0
     let ctx: CanvasRenderingContext2D | null = null
-    const MAX_SPARKS = 280
+    const isMobile = window.innerWidth < 768
+    const MAX_SPARKS = isMobile ? 120 : 280
+    const STAR_COUNT = isMobile ? 18 : 38
 
     const init = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -50,7 +52,7 @@ export default function FireworksBackground() {
       ctx = canvas.getContext('2d')
       if (!ctx) return
       ctx.scale(dpr, dpr)
-      stars = Array.from({ length: 38 }, () => ({
+      stars = Array.from({ length: STAR_COUNT }, () => ({
         x: Math.random() * W,
         y: Math.random() * H * 0.75,
         r: Math.random() * 1.3 + 0.3,
@@ -114,9 +116,14 @@ export default function FireworksBackground() {
       }
       ctx.globalAlpha = 1
 
-      if (t % 14 === 0) launch()
-      if (t % 28 === 0) launch()
-      if (t % 45 === 0) { launch(); launch() }
+      if (isMobile) {
+        if (t % 40 === 0) launch()
+        if (t % 80 === 0) launch()
+      } else {
+        if (t % 14 === 0) launch()
+        if (t % 28 === 0) launch()
+        if (t % 45 === 0) { launch(); launch() }
+      }
 
       // 로켓 — 선 꼬리
       for (let i = rockets.length - 1; i >= 0; i--) {
