@@ -215,18 +215,98 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.fill()
         })
 
-        // 4. Gold divider spokes (from 52*s to 390*s)
+        // 4. Golden rod divider spokes (drawn programmatically)
         prizes.forEach((_, i) => {
-          const ea = -Math.PI / 2 - segAngle / 2 + i * segAngle
-          const x1 = Math.cos(ea) * 52 * s, y1 = Math.sin(ea) * 52 * s
-          const x2 = Math.cos(ea) * 390 * s, y2 = Math.sin(ea) * 390 * s
+          const ea       = -Math.PI / 2 - segAngle / 2 + i * segAngle
+          const outerR   = 390 * s
+          const halfLen  = outerR / 2   // translate to midpoint, then draw ±halfLen
+          const sR = 4.5 * s            // shaft radius
+          const bR = 10  * s            // outer ball radius
+          const cR = 6.5 * s            // collar radius
+          const cH = 8   * s            // collar height
+
+          ctx.save()
+          ctx.translate(Math.cos(ea) * halfLen, Math.sin(ea) * halfLen)
+          ctx.rotate(ea - Math.PI / 2)
+
+          // Local Y: negative = outer rim, positive = center (hidden under hub)
+          const outerEnd  = -halfLen
+          const collarTop = outerEnd + bR * 1.85
+          const shaftTop  = collarTop + cH
+
+          // Cylindrical shading gradient (horizontal, perpendicular to rod axis)
+          const cylG = (w: number) => {
+            const g = ctx.createLinearGradient(-w, 0, w, 0)
+            g.addColorStop(0,    '#fff6c0')
+            g.addColorStop(0.10, '#f8d870')
+            g.addColorStop(0.27, '#d4a020')
+            g.addColorStop(0.47, '#7a5800')
+            g.addColorStop(0.65, '#9a7010')
+            g.addColorStop(0.83, '#d4a830')
+            g.addColorStop(0.93, '#f0c840')
+            g.addColorStop(1,    '#fdf0a0')
+            return g
+          }
+
+          // ── Shaft ──
+          ctx.shadowColor = 'rgba(0,0,0,0.28)'
+          ctx.shadowBlur = 4 * s
+          ctx.fillStyle = cylG(sR)
+          ctx.fillRect(-sR, shaftTop, sR * 2, halfLen - shaftTop)
+
+          // ── Collar ──
+          ctx.fillStyle = cylG(cR)
+          ctx.fillRect(-cR, collarTop, cR * 2, cH)
+          ctx.shadowBlur = 0
+
+          // Collar top edge highlight
+          ctx.fillStyle = 'rgba(255,248,160,0.55)'
+          ctx.fillRect(-cR, collarTop, cR * 2, 1.5 * s)
+          // Collar bottom edge shadow
+          ctx.fillStyle = 'rgba(0,0,0,0.28)'
+          ctx.fillRect(-cR, collarTop + cH - 1.5 * s, cR * 2, 1.5 * s)
+
+          // Rivet dots × 3
+          const dotY = collarTop + cH * 0.5
+          const dotXs = [-cR * 0.5, 0, cR * 0.5]
+          dotXs.forEach(dx => {
+            const dg = ctx.createRadialGradient(dx - 0.4 * s, dotY - 0.4 * s, 0, dx, dotY, 1.4 * s)
+            dg.addColorStop(0, '#fffce0')
+            dg.addColorStop(1, '#5a3e00')
+            ctx.beginPath()
+            ctx.arc(dx, dotY, 1.4 * s, 0, Math.PI * 2)
+            ctx.fillStyle = dg
+            ctx.fill()
+          })
+
+          // ── Outer ball ──
+          const ballCY = outerEnd + bR
+          ctx.shadowColor = 'rgba(0,0,0,0.32)'
+          ctx.shadowBlur = 6 * s
+          const ballG = ctx.createRadialGradient(-bR * 0.3, ballCY - bR * 0.3, bR * 0.04, 0, ballCY, bR)
+          ballG.addColorStop(0,    '#fffce0')
+          ballG.addColorStop(0.20, '#f8e060')
+          ballG.addColorStop(0.45, '#c89018')
+          ballG.addColorStop(0.70, '#7a5808')
+          ballG.addColorStop(0.88, '#4e3600')
+          ballG.addColorStop(1,    '#2e1e00')
           ctx.beginPath()
-          ctx.moveTo(x1, y1)
-          ctx.lineTo(x2, y2)
-          ctx.strokeStyle = '#c89a36'
-          ctx.lineWidth = 4 * s
-          ctx.lineCap = 'butt'
-          ctx.stroke()
+          ctx.arc(0, ballCY, bR, 0, Math.PI * 2)
+          ctx.fillStyle = ballG
+          ctx.fill()
+          ctx.shadowBlur = 0
+
+          // Ball specular highlight
+          const specG = ctx.createRadialGradient(-bR * 0.3, ballCY - bR * 0.38, 0, -bR * 0.1, ballCY - bR * 0.15, bR * 0.62)
+          specG.addColorStop(0,   'rgba(255,255,255,0.82)')
+          specG.addColorStop(0.5, 'rgba(255,255,255,0.22)')
+          specG.addColorStop(1,   'rgba(255,255,255,0)')
+          ctx.beginPath()
+          ctx.arc(0, ballCY, bR, 0, Math.PI * 2)
+          ctx.fillStyle = specG
+          ctx.fill()
+
+          ctx.restore()
         })
 
         // 5. Gold ring stroke at r=394*s, width=11*s
