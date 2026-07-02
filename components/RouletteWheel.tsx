@@ -121,13 +121,22 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
       off.height = img.naturalHeight
       const offCtx = off.getContext('2d')!
       offCtx.drawImage(img, 0, 0)
+      // 흰 배경 제거
       const imageData = offCtx.getImageData(0, 0, off.width, off.height)
       const d = imageData.data
       for (let j = 0; j < d.length; j += 4) {
-        const r = d[j], g = d[j+1], b = d[j+2]
-        if (r > 200 && g > 200 && b > 200) d[j+3] = 0
+        if (d[j] > 200 && d[j+1] > 200 && d[j+2] > 200) d[j+3] = 0
       }
       offCtx.putImageData(imageData, 0, 0)
+      // 황금색으로 채색
+      offCtx.globalCompositeOperation = 'source-in'
+      const goldGrad = offCtx.createLinearGradient(0, 0, 0, off.height)
+      goldGrad.addColorStop(0,   '#fff8c0')
+      goldGrad.addColorStop(0.3, '#f5d060')
+      goldGrad.addColorStop(0.7, '#d4960a')
+      goldGrad.addColorStop(1,   '#a06808')
+      offCtx.fillStyle = goldGrad
+      offCtx.fillRect(0, 0, off.width, off.height)
       laurelCanvasRef.current = off
     }
   }, [])
@@ -604,7 +613,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           // ── 월계수 (1등 좌우) ──
           if (i === 0 && laurelCanvasRef.current) {
             const lc  = laurelCanvasRef.current
-            const lh  = 58 * s
+            const lh  = 76 * s
             const lw  = lh * (lc.width / lc.height)
             const gap = 54 * s
 
@@ -615,8 +624,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             // 텍스트 중앙 기준 좌우 중심점
             const textCX = cx_t
             const textCY = rankY - numFontSize * 0.28
-
-            ctx.filter = 'invert(1) sepia(1) saturate(10) hue-rotate(5deg) brightness(1.1)'
 
             // 왼쪽
             ctx.save()
@@ -633,7 +640,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             ctx.drawImage(lc, -lw / 2, -lh / 2, lw, lh)
             ctx.restore()
 
-            ctx.filter = 'none'
           }
 
           // ── 왕관 이미지 (1등 세그먼트만) ──
