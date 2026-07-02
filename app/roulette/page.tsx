@@ -95,11 +95,11 @@ export default function Home() {
           onClick={triggerSpin}
           style={{
             position: 'absolute',
-            bottom: isPortrait ? '5%' : '4%',
+            bottom: isPortrait ? '15%' : '4%',
             left: '50%',
             transform: 'translateX(-50%)',
             width: isPortrait ? '70%' : '55%',
-            height: '9%',
+            height: isPortrait ? '10%' : '9%',
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
