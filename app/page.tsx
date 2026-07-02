@@ -49,7 +49,7 @@ export default function LandingPage() {
     }).catch(() => {})
     // 룰렛 배경 이미지 미리 로드 (캐시 저장)
     ;['/roulette-bg-portrait.png', '/roulette-bg.png'].forEach(src => {
-      const img = new window.Image()
+      const img = document.createElement('img')
       img.src = src
     })
     const onChange = () => setIsFullscreen(!!document.fullscreenElement)
