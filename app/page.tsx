@@ -115,9 +115,9 @@ export default function LandingPage() {
             <span
               style={{
                 color: '#ffffff',
-                fontSize: 'clamp(45px, 4vw, 90px)',
+                fontSize: 'clamp(55px, 4vw, 90px)',
                 fontWeight: 900,
-                fontFamily: "'Song Myung', 'Gungsuh', '궁서', serif",
+                fontFamily: "'Gungsuh', '궁서', 'Noto Serif KR', serif",
                 letterSpacing: '0.02em',
                 textShadow: '0 2px 10px rgba(0,0,0,0.65)',
               }}
@@ -164,9 +164,9 @@ export default function LandingPage() {
           <div
             style={{
               color: '#ffffff',
-              fontSize: 'clamp(50px, 4.5vw, 95px)',
+              fontSize: 'clamp(55px, 4.5vw, 95px)',
               fontWeight: 900,
-              fontFamily: "'Song Myung', 'Gungsuh', '궁서', serif",
+              fontFamily: "'Gungsuh', '궁서', 'Noto Serif KR', serif",
               letterSpacing: '0.02em',
               textShadow: '0 2px 10px rgba(0,0,0,0.65)',
               marginTop: 4,
@@ -191,7 +191,7 @@ export default function LandingPage() {
             <span style={{
               color: '#f0d060',
               fontSize: 'clamp(20px, 1.8vw, 38px)',
-              fontFamily: "'Song Myung', 'Gungsuh', '궁서', serif",
+              fontFamily: "'Noto Sans KR', sans-serif",
               letterSpacing: '0.01em',
               textShadow: '0 1px 6px rgba(0,0,0,0.5)',
               whiteSpace: 'nowrap',
