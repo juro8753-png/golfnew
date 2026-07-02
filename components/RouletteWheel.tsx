@@ -305,6 +305,27 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           }
           ctx.fill()
 
+          // 보라색 세그먼트(0): 12시 방향 밝고 11시/1시 방향으로 점점 어두워지는 각도 음영
+          if (i === 0) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, 390 * s, start, end)
+            ctx.closePath()
+            ctx.clip()
+            const angDark = ctx.createLinearGradient(-390 * s, 0, 390 * s, 0)
+            angDark.addColorStop(0,    'rgba(0,0,0,0.55)')
+            angDark.addColorStop(0.22, 'rgba(0,0,0,0.40)')
+            angDark.addColorStop(0.42, 'rgba(0,0,0,0.08)')
+            angDark.addColorStop(0.50, 'rgba(0,0,0,0)')
+            angDark.addColorStop(0.58, 'rgba(0,0,0,0.08)')
+            angDark.addColorStop(0.78, 'rgba(0,0,0,0.40)')
+            angDark.addColorStop(1,    'rgba(0,0,0,0.55)')
+            ctx.fillStyle = angDark
+            ctx.fillRect(-390 * s, -390 * s, 780 * s, 780 * s)
+            ctx.restore()
+          }
+
         })
 
         // 4. Golden rod divider spokes (drawn programmatically)
