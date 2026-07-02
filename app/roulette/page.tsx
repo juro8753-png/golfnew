@@ -58,12 +58,18 @@ export default function Home() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#000', fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 배경 이미지 — contain으로 전체 보이게 */}
+      {/* 배경 이미지 — 가로/세로 전환 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/roulette-bg.png"
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: isPortrait ? 'center 78%' : 'center', display: 'block' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 0 : 1 }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/roulette-bg-portrait.png"
+        alt=""
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 1 : 0 }}
       />
 
       {/* 폭죽 + 반짝이 */}
@@ -97,7 +103,7 @@ export default function Home() {
           onClick={triggerSpin}
           style={{
             position: 'absolute',
-            bottom: isPortrait ? '15%' : '11%',
+            bottom: isPortrait ? '8%' : '11%',
             left: '50%',
             transform: 'translateX(-50%)',
             width: isPortrait ? '80%' : '55%',
