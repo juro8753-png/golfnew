@@ -240,14 +240,15 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           // Cylindrical shading gradient (horizontal = perpendicular to rod)
           const cylG = (w: number) => {
             const g = ctx.createLinearGradient(-w, 0, w, 0)
-            g.addColorStop(0,    '#fff6c0')
-            g.addColorStop(0.10, '#f8d870')
-            g.addColorStop(0.27, '#d4a020')
-            g.addColorStop(0.47, '#7a5800')
-            g.addColorStop(0.65, '#9a7010')
-            g.addColorStop(0.83, '#d4a830')
-            g.addColorStop(0.93, '#f0c840')
-            g.addColorStop(1,    '#fdf0a0')
+            g.addColorStop(0,    '#ffffff')
+            g.addColorStop(0.07, '#fef4c0')
+            g.addColorStop(0.18, '#fce878')
+            g.addColorStop(0.35, '#f0c840')
+            g.addColorStop(0.50, '#d4a830')
+            g.addColorStop(0.65, '#e8c040')
+            g.addColorStop(0.82, '#fce878')
+            g.addColorStop(0.93, '#fef4c0')
+            g.addColorStop(1,    '#ffffff')
             return g
           }
 
@@ -286,12 +287,12 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.shadowColor = 'rgba(0,0,0,0.32)'
           ctx.shadowBlur = 6 * s
           const ballG = ctx.createRadialGradient(-bR * 0.3, ballCY - bR * 0.3, bR * 0.04, 0, ballCY, bR)
-          ballG.addColorStop(0,    '#fffce0')
-          ballG.addColorStop(0.20, '#f8e060')
-          ballG.addColorStop(0.45, '#c89018')
-          ballG.addColorStop(0.70, '#7a5808')
-          ballG.addColorStop(0.88, '#4e3600')
-          ballG.addColorStop(1,    '#2e1e00')
+          ballG.addColorStop(0,    '#ffffff')
+          ballG.addColorStop(0.12, '#fef6c0')
+          ballG.addColorStop(0.30, '#fce060')
+          ballG.addColorStop(0.55, '#e0a820')
+          ballG.addColorStop(0.78, '#b88010')
+          ballG.addColorStop(1,    '#7a5200')
           ctx.beginPath()
           ctx.arc(0, ballCY, bR, 0, Math.PI * 2)
           ctx.fillStyle = ballG
@@ -299,10 +300,11 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.shadowBlur = 0
 
           // Ball specular highlight
-          const specG = ctx.createRadialGradient(-bR * 0.3, ballCY - bR * 0.38, 0, -bR * 0.1, ballCY - bR * 0.15, bR * 0.62)
-          specG.addColorStop(0,   'rgba(255,255,255,0.82)')
-          specG.addColorStop(0.5, 'rgba(255,255,255,0.22)')
-          specG.addColorStop(1,   'rgba(255,255,255,0)')
+          const specG = ctx.createRadialGradient(-bR * 0.32, ballCY - bR * 0.42, 0, -bR * 0.1, ballCY - bR * 0.15, bR * 0.7)
+          specG.addColorStop(0,    'rgba(255,255,255,0.95)')
+          specG.addColorStop(0.25, 'rgba(255,255,255,0.55)')
+          specG.addColorStop(0.6,  'rgba(255,255,255,0.12)')
+          specG.addColorStop(1,    'rgba(255,255,255,0)')
           ctx.beginPath()
           ctx.arc(0, ballCY, bR, 0, Math.PI * 2)
           ctx.fillStyle = specG
