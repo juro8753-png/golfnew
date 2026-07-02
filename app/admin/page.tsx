@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { AdminStats, Prize } from '@/types'
-import { WHEEL_THEMES, getSavedTheme, saveTheme, type ThemeKey } from '@/lib/wheel-themes'
 import { BG_THEMES, getSavedBg, saveBg, type BgThemeKey, LANDING_BG_KEY, ROULETTE_BG_KEY } from '@/lib/bg-themes'
 import DailyLimitCalendar from '@/components/DailyLimitCalendar'
 
@@ -30,7 +29,6 @@ export default function AdminDashboard() {
   // 확률 인라인 편집용 state
   const [probInputs, setProbInputs] = useState<Record<number, string>>({})
   const [savingProb, setSavingProb] = useState(false)
-  const [selectedTheme, setSelectedTheme] = useState<ThemeKey>('fortune_wheel_classic')
   const [selectedLandingBg, setSelectedLandingBg] = useState<BgThemeKey>('purple_original')
   const [selectedRouletteBg, setSelectedRouletteBg] = useState<BgThemeKey>('purple_original')
 
@@ -43,7 +41,6 @@ export default function AdminDashboard() {
   const [showDailyModal, setShowDailyModal] = useState(false)
 
   useEffect(() => {
-    setSelectedTheme(getSavedTheme())
     setSelectedLandingBg(getSavedBg(LANDING_BG_KEY))
     setSelectedRouletteBg(getSavedBg(ROULETTE_BG_KEY))
   }, [])
@@ -351,44 +348,6 @@ export default function AdminDashboard() {
 
       {/* 일별 참여 제한 달력 */}
       <DailyLimitCalendar />
-
-      {/* 룰렛 디자인 선택 */}
-      <div className="space-y-3">
-        <h2 className="text-xl font-bold text-gray-800">룰렛 디자인</h2>
-        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-          {(Object.values(WHEEL_THEMES).filter(th => !['neon_purple', 'fortune_gold', 'royal_gold', 'standard'].includes(th.key))).map(th => {
-            const [bg, c1, c2] = th.previewColors
-            const isSelected = selectedTheme === th.key
-            return (
-              <button
-                key={th.key}
-                onClick={() => { saveTheme(th.key); setSelectedTheme(th.key) }}
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                  isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-400 bg-white'
-                }`}
-              >
-                {/* 미니 룰렛 미리보기 */}
-                <svg width="72" height="72" viewBox="0 0 72 72">
-                  <circle cx="36" cy="36" r="34" fill={bg} />
-                  {[0,1,2,3,4,5].map(i => {
-                    const a0 = (-90 - 30 + i * 60) * Math.PI / 180
-                    const a1 = a0 + 60 * Math.PI / 180
-                    const x0 = 36 + 28 * Math.cos(a0), y0 = 36 + 28 * Math.sin(a0)
-                    const x1 = 36 + 28 * Math.cos(a1), y1 = 36 + 28 * Math.sin(a1)
-                    return <path key={i} d={`M36 36 L${x0.toFixed(1)} ${y0.toFixed(1)} A28 28 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`} fill={i % 2 === 0 ? c1 : c2} stroke={th.dividerColor} strokeWidth="0.8" />
-                  })}
-                  <circle cx="36" cy="36" r="6" fill={bg} stroke={th.hubInnerStroke} strokeWidth="1.5" />
-                  {th.rimRingColor !== 'none' && <circle cx="36" cy="36" r="34" fill="none" stroke={th.rimRingColor} strokeWidth="2" />}
-                </svg>
-                <span className={`text-xs font-bold ${isSelected ? 'text-blue-600' : 'text-gray-600'}`}>
-                  {th.name}
-                </span>
-                {isSelected && <span className="text-xs text-blue-400">✓ 적용중</span>}
-              </button>
-            )
-          })}
-        </div>
-      </div>
 
       {/* 배경 색상 선택 */}
       <div className="space-y-4">
