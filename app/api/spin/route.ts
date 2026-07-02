@@ -16,15 +16,16 @@ export async function POST() {
 
   const { prize, segmentIndex } = winnerData
 
-  const result = await db.results.create({
-    prize_id: prize.id,
-    prize_name: prize.name,
-    is_winner: !prize.is_consolation,
-  })
-
-  if (!prize.is_unlimited && prize.remaining_quantity > 0) {
-    await db.prizes.update(prize.id, { remaining_quantity: prize.remaining_quantity - 1 })
-  }
+  const [result] = await Promise.all([
+    db.results.create({
+      prize_id: prize.id,
+      prize_name: prize.name,
+      is_winner: !prize.is_consolation,
+    }),
+    (!prize.is_unlimited && prize.remaining_quantity > 0)
+      ? db.prizes.update(prize.id, { remaining_quantity: prize.remaining_quantity - 1 })
+      : Promise.resolve(null),
+  ])
 
   return NextResponse.json({ result, prize, segmentIndex })
 }

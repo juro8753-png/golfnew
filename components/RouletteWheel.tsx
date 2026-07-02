@@ -25,8 +25,11 @@ interface ConfettiParticle {
   opacity: number
 }
 
-const SPIN_DURATION = 5000
-const MIN_ROTATIONS = 8
+const SPIN_DURATION = 5000   // 버튼 누름 ~ 완전히 멈춤까지 목표 총 시간 (ms)
+const DECEL_DURATION = 3500  // 감속 구간 길이 (ms)
+const MIN_FULL_SPEED_MS = SPIN_DURATION - DECEL_DURATION  // 1500ms 이상 최고속 유지
+const MIN_ROTATIONS = 5      // 감속 중 최소 추가 회전수
+const API_TIMEOUT_MS = 12000 // API 무응답 시 타임아웃
 
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 4)
@@ -1448,8 +1451,10 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
     const n = prizes.length
     const segAngle = (2 * Math.PI) / n
 
-    // API 요청과 애니메이션을 동시에 시작
-    const fetchPromise = fetch('/api/spin', { method: 'POST' })
+    // API 요청과 애니메이션을 동시에 시작 (타임아웃 포함)
+    const abortCtrl = new AbortController()
+    const apiTimeoutId = setTimeout(() => abortCtrl.abort(), API_TIMEOUT_MS)
+    const fetchPromise = fetch('/api/spin', { method: 'POST', signal: abortCtrl.signal })
 
     soundEngine.spinStart()
 
@@ -1460,7 +1465,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
     // API 응답 후 채워질 상태 (클로저로 공유)
     let apiResult: SpinResponse | null = null
     let finalRotation = 0
-    let decelStartTime = 0
+    let decelStartTime = 0  // 0 = 감속 아직 안 시작
     let decelStartRotation = 0
 
     // 가속 단계: RAMP_DURATION ms 동안 최고속도까지 가속
@@ -1468,9 +1473,12 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
     const TOP_SPEED = (MIN_ROTATIONS * 2 * Math.PI) / SPIN_DURATION // rad/ms
 
     const animate = (now: number) => {
-      if (apiResult === null) {
-        // 로딩 중: 부드럽게 가속 후 최고속도 유지
-        const elapsed = now - startTime
+      const elapsed = now - startTime
+      // API 응답 왔고 최소 전속 시간도 지났으면 감속 가능
+      const canDecel = apiResult !== null && elapsed >= MIN_FULL_SPEED_MS
+
+      if (!canDecel) {
+        // 전속 구간: 가속 후 최고속 유지
         const rot = elapsed < RAMP_DURATION
           ? startRotation + 0.5 * TOP_SPEED * (elapsed * elapsed / RAMP_DURATION)
           : startRotation + 0.5 * TOP_SPEED * RAMP_DURATION + TOP_SPEED * (elapsed - RAMP_DURATION)
@@ -1486,9 +1494,20 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
         drawWheel(rot)
         animFrameRef.current = requestAnimationFrame(animate)
       } else {
-        // API 응답 완료: 목표 세그먼트로 easeOut 감속
-        const elapsed = now - decelStartTime
-        const t = Math.min(elapsed / SPIN_DURATION, 1)
+        // 감속 구간
+        if (decelStartTime === 0) {
+          // 감속 첫 프레임: 현재 위치 기준으로 목표 각도 계산
+          decelStartTime = now
+          decelStartRotation = rotationRef.current
+          const curNorm = ((rotationRef.current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+          const targetBase = ((-apiResult!.segmentIndex * segAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)
+          let delta = (targetBase - curNorm + 2 * Math.PI) % (2 * Math.PI)
+          if (delta < 0.2) delta += 2 * Math.PI
+          finalRotation = rotationRef.current + delta + 2 * Math.PI * MIN_ROTATIONS
+        }
+
+        const decelElapsed = now - decelStartTime
+        const t = Math.min(decelElapsed / DECEL_DURATION, 1)
         const newRotation = decelStartRotation + (finalRotation - decelStartRotation) * easeOut(t)
 
         const curSeg = Math.floor(((newRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / segAngle)
@@ -1505,7 +1524,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
         } else {
           rotationRef.current = finalRotation
           setSpinning(false)
-          const response = apiResult
+          const response = apiResult!
           setResult(response)
           setShowModal(true)
           onModalChange?.(true)
@@ -1553,28 +1572,23 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
     // API 응답 처리 (애니메이션과 병렬)
     try {
       const res = await fetchPromise
+      clearTimeout(apiTimeoutId)
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || '서버 오류')
       }
       const spinResponse: SpinResponse = await res.json()
-
-      // 현재 휠 위치에서 목표 세그먼트까지의 감속 계산
-      const curRotation = rotationRef.current
-      const curNorm = ((curRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
-      const targetBase = ((-spinResponse.segmentIndex * segAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)
-      let delta = (targetBase - curNorm + 2 * Math.PI) % (2 * Math.PI)
-      if (delta < 0.2) delta += 2 * Math.PI
-
-      decelStartTime = performance.now()
-      decelStartRotation = curRotation
-      finalRotation = curRotation + delta + 2 * Math.PI * MIN_ROTATIONS
+      // apiResult만 세팅 — 감속 시작 시점 계산은 animate()에서 처리
       apiResult = spinResponse
     } catch (e) {
+      clearTimeout(apiTimeoutId)
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       setSpinning(false)
       soundEngine.bgStop()
-      alert((e as Error).message || '추첨 중 오류가 발생했습니다.')
+      const msg = (e as Error).name === 'AbortError'
+        ? '서버 응답 시간이 초과되었습니다. 다시 시도해주세요.'
+        : (e as Error).message || '추첨 중 오류가 발생했습니다.'
+      alert(msg)
     }
   }
 
