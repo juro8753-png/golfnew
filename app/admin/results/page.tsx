@@ -1,22 +1,30 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { SpinResult } from '@/types'
+import { SpinResult, Prize } from '@/types'
 
 const PAGE_SIZE = 50
+const RANK_LABELS = ['1등', '2등', '3등', '4등', '5등', '행운상']
 
 export default function ResultsPage() {
   const [results, setResults] = useState<SpinResult[]>([])
+  const [rankMap, setRankMap] = useState<Record<number, string>>({})
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
 
   const fetchResults = useCallback(async (p: number) => {
     setLoading(true)
-    const res = await fetch(`/api/admin/results?page=${p}&limit=${PAGE_SIZE}`)
-    const data = await res.json()
-    setResults(data.data ?? [])
-    setTotal(data.count ?? 0)
+    const [resData, prizeRes] = await Promise.all([
+      fetch(`/api/admin/results?page=${p}&limit=${PAGE_SIZE}`).then(r => r.json()),
+      fetch('/api/admin/prizes').then(r => r.json()),
+    ])
+    setResults(resData.data ?? [])
+    setTotal(resData.count ?? 0)
+    const sorted: Prize[] = Array.isArray(prizeRes) ? [...prizeRes].sort((a, b) => a.id - b.id) : []
+    const map: Record<number, string> = {}
+    sorted.forEach((p, i) => { map[p.id] = RANK_LABELS[i] ?? `${i + 1}등` })
+    setRankMap(map)
     setLoading(false)
   }, [])
 
@@ -86,7 +94,9 @@ export default function ResultsPage() {
                     </td>
                     <td className="px-3 py-2.5 text-center">
                       {r.is_winner ? (
-                        <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">당첨</span>
+                        <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                          {r.prize_id && rankMap[r.prize_id] ? rankMap[r.prize_id] : '당첨'}
+                        </span>
                       ) : (
                         <span className="bg-gray-100 text-gray-400 text-xs px-2 py-1 rounded-full">꽝</span>
                       )}
