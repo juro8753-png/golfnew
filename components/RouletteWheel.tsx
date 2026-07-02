@@ -321,51 +321,47 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
         ctx.lineCap = 'butt'
         ctx.stroke()
 
-        // 6. Labels: rank (등수 고정) + prize name
+        // 6. Labels: rank + prize name — 같은 위치에 위아래 배치
         const RANKS = ['1등', '2등', '3등', '4등', '5등', '행운상']
-        // 3등(i=2),4등(i=3),5등(i=4): rank↔name 위치 swap / 행운상(i=5): rank 더 바깥 / 2등(i=1): 약간 좌상
-        const rankRadii  = [275, 275, 210, 210, 210, 295]
-        const nameRadii  = [210, 210, 275, 275, 275, 210]
-        const rankDx     = [  0,  -7,   0,   0,   0,   0]
-        const rankDy     = [  0,  -7,   0,   0,   0,   0]
+        const rankGradParams = [
+          ['#fff6a0', '#f0be4f', '#c89a28'],
+          ['#3a1200', '#6b2e00', '#3a1200'],
+          ['#fff6a0', '#f0be4f', '#c89a28'],
+          ['#fff6a0', '#f0be4f', '#c89a28'],
+          ['#3a1200', '#6b2e00', '#3a1200'],
+          ['#ffffff', '#d0f4ff', '#a0e8ff'],
+        ]
+        const nameColors = ['#f0d8ff', '#3a1200', '#c8e4ff', '#d8ccff', '#3a1200', '#c0f0ff']
+        const numFontSize = 36
+        const sfxFontSize = 23
+        const nameFontSize = 15
+
         prizes.forEach((prize, i) => {
           const midAngle = -Math.PI / 2 - segAngle / 2 + i * segAngle + segAngle / 2
           const rankLabel = RANKS[i] ?? prize.name
 
-          const rankR = rankRadii[i] * s
-          const rx = Math.cos(midAngle) * rankR + rankDx[i]
-          const ry = Math.sin(midAngle) * rankR + rankDy[i]
-
-          const nameR = nameRadii[i] * s
-          const nx = Math.cos(midAngle) * nameR
-          const ny = Math.sin(midAngle) * nameR
+          // 등수+상품명을 같은 반지름(245)에 위아래로 묶어 배치
+          const contentR = 245 * s
+          const cx_t = Math.cos(midAngle) * contentR
+          const cy_t = Math.sin(midAngle) * contentR
+          const rankY = cy_t - nameFontSize * 0.7   // 등수: 중심보다 약간 위
+          const nameY = cy_t + numFontSize * 0.65   // 상품명: 등수 바로 아래
 
           ctx.save()
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
 
-          // ── Rank label (숫자 더 크게) ──
-          const numFontSize = 28
-          const sfxFontSize = 18
-
-          const mkGxy = (y0: number, y1: number, t: string, m: string, b: string) => {
-            const g = ctx.createLinearGradient(rx, y0, rx, y1)
-            g.addColorStop(0, t); g.addColorStop(0.5, m); g.addColorStop(1, b)
-            return g
-          }
-          const rankGradParams = [
-            ['#fff6a0', '#f0be4f', '#c89a28'],
-            ['#3a1200', '#6b2e00', '#3a1200'],
-            ['#fff6a0', '#f0be4f', '#c89a28'],
-            ['#fff6a0', '#f0be4f', '#c89a28'],
-            ['#3a1200', '#6b2e00', '#3a1200'],
-            ['#ffffff', '#d0f4ff', '#a0e8ff'],
-          ]
+          // ── 등수 ──
           const [gc0, gc1, gc2] = rankGradParams[i] ?? ['#ffffff', '#eeeeee', '#ffffff']
           ctx.shadowColor = (i === 1 || i === 4) ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.65)'
           ctx.shadowBlur = 6
           ctx.shadowOffsetY = 2
-          ctx.textBaseline = 'middle'
+
+          const mkG = (y0: number, y1: number) => {
+            const g = ctx.createLinearGradient(cx_t, y0, cx_t, y1)
+            g.addColorStop(0, gc0); g.addColorStop(0.5, gc1); g.addColorStop(1, gc2)
+            return g
+          }
 
           const numMatch = rankLabel.match(/^(\d+)(.+)$/)
           if (numMatch) {
@@ -375,39 +371,34 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             const numW = ctx.measureText(numPart).width
             ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
             const sfxW = ctx.measureText(sfxPart).width
-            const startX = rx - (numW + sfxW) / 2
+            const startX = cx_t - (numW + sfxW) / 2
             ctx.textAlign = 'left'
-
             ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkGxy(ry - numFontSize * 0.6, ry + numFontSize * 0.6, gc0, gc1, gc2)
-            ctx.fillText(numPart, startX, ry)
-
+            ctx.fillStyle = mkG(rankY - numFontSize * 0.6, rankY + numFontSize * 0.6)
+            ctx.fillText(numPart, startX, rankY)
             ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkGxy(ry - sfxFontSize * 0.6, ry + sfxFontSize * 0.6, gc0, gc1, gc2)
-            ctx.fillText(sfxPart, startX + numW, ry + (numFontSize - sfxFontSize) / 2)
+            ctx.fillStyle = mkG(rankY - sfxFontSize * 0.6, rankY + sfxFontSize * 0.6)
+            ctx.fillText(sfxPart, startX + numW, rankY + (numFontSize - sfxFontSize) / 2)
           } else {
-            // 행운상 등 숫자 없는 경우
-            ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkGxy(ry - sfxFontSize * 0.6, ry + sfxFontSize * 0.6, gc0, gc1, gc2)
+            ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.fillStyle = mkG(rankY - numFontSize * 0.6, rankY + numFontSize * 0.6)
             ctx.textAlign = 'center'
-            ctx.fillText(rankLabel, rx, ry)
+            ctx.fillText(rankLabel, cx_t, rankY)
           }
 
-          // ── Prize name ──
+          // ── 상품명 ──
           ctx.shadowBlur = 0
           ctx.shadowOffsetY = 0
-          const nameFontSize = 11
-          ctx.font = `bold ${nameFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-          const nameColors = ['#f0d8ff', '#3a1200', '#c8e4ff', '#d8ccff', '#3a1200', '#c0f0ff']
           ctx.fillStyle = nameColors[i] ?? '#ffffff'
-
+          ctx.font = `bold ${nameFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+          ctx.textAlign = 'center'
           const words = prize.name.split(' ')
-          if (words.length > 1 && ctx.measureText(prize.name).width > 50 * s) {
+          if (words.length > 1 && ctx.measureText(prize.name).width > 55 * s) {
             const mid = Math.ceil(words.length / 2)
-            ctx.fillText(words.slice(0, mid).join(' '), nx, ny - nameFontSize * 0.7)
-            ctx.fillText(words.slice(mid).join(' '), nx, ny + nameFontSize * 0.7)
+            ctx.fillText(words.slice(0, mid).join(' '), cx_t, nameY - nameFontSize * 0.7)
+            ctx.fillText(words.slice(mid).join(' '), cx_t, nameY + nameFontSize * 0.7)
           } else {
-            ctx.fillText(prize.name, nx, ny)
+            ctx.fillText(prize.name, cx_t, nameY)
           }
 
           ctx.restore()
