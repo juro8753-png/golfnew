@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 const navItems = [
   { href: '/admin', label: '대시보드' },
   { href: '/admin/results', label: '당첨 내역' },
+  { href: '/admin/daily-limit', label: '일일참여제한' },
   { href: '/roulette', label: '룰렛판으로' },
 ]
 
@@ -22,7 +23,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-gray-50">
       {/* 상단 네비게이션 */}
       <nav className="bg-gray-900 text-white px-3 py-2.5 flex items-center gap-1.5">
-        <span className="font-bold text-green-400 text-base mr-2 shrink-0">⛳ 관리자</span>
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1 min-w-0">
           {navItems.map(item => (
             <Link

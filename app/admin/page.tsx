@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { AdminStats, Prize } from '@/types'
 import { BG_THEMES, getSavedBg, saveBg, type BgThemeKey, LANDING_BG_KEY, ROULETTE_BG_KEY } from '@/lib/bg-themes'
-import DailyLimitCalendar from '@/components/DailyLimitCalendar'
 
 const emptyForm = {
   name: '',
@@ -345,9 +344,6 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
-
-      {/* 일별 참여 제한 달력 */}
-      <DailyLimitCalendar />
 
       {/* 배경 색상 선택 — 비활성화
       <div className="space-y-4">
