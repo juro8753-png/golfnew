@@ -102,9 +102,12 @@ export default function Home() {
             height: isPortrait ? '13%' : '9%',
             background: 'transparent',
             border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
             cursor: 'pointer',
             zIndex: 3,
             WebkitTapHighlightColor: 'transparent',
+            appearance: 'none',
           }}
           aria-label="오늘의 행운 뽑기"
         />
