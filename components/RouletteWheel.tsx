@@ -490,16 +490,16 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           if (numMatch) {
             const numPart = numMatch[1]
             const sfxPart = numMatch[2]
-            ctx.font = `900 ${numFontSize}px "Noto Serif KR", serif`
+            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             const numW = ctx.measureText(numPart).width
-            ctx.font = `900 ${sfxFontSize}px "Noto Serif KR", serif`
+            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             const sfxW = ctx.measureText(sfxPart).width
             const startX = cx_t + textXOff - (numW + sfxW) / 2
             ctx.textAlign = 'left'
-            ctx.font = `900 ${numFontSize}px "Noto Serif KR", serif`
+            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.fillText(numPart, startX, rankY)
-            ctx.font = `900 ${sfxFontSize}px "Noto Serif KR", serif`
+            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
@@ -512,7 +512,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
               const w0 = ctx.measureText(ch0).width
               const w1 = ctx.measureText(ch1).width
               const w2 = ctx.measureText(ch2).width
-              const tight = 4
+              const tight = -1
               const totalW = w0 + w1 + w2 - tight
               const sx = cx_t + textXOff - totalW / 2
               ctx.fillText(ch0, sx, rankY)
@@ -1111,8 +1111,8 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
     const applySize = () => {
       const dpr = window.devicePixelRatio || 1
-      // 화면 너비 90%, 높이 75% 중 작은 값, 최대 700px
-      const displaySize = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.75, 700)
+      // 버튼 영역(~100px) 제외한 높이 기준, 최대 700px
+      const displaySize = Math.min(window.innerWidth * 0.90, (window.innerHeight - 120) * 0.92, 700)
       canvas.width = displaySize * dpr
       canvas.height = displaySize * dpr
       canvas.style.width = `${displaySize}px`
@@ -1363,7 +1363,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
       />
 
       {/* 휠 + 포인터 */}
-      <div className="relative flex items-center justify-center" style={{ marginTop: '36px' }}>
+      <div className="relative flex items-center justify-center" style={{ marginTop: '12px' }}>
         {/* <div className="absolute pointer-events-none" style={{
           zIndex: 10, top: -22, left: '50%', transform: 'translateX(-50%)',
           animation: 'triGlow 1.8s ease-in-out infinite',

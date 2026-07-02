@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState, useCallback } from 'react'
 import RouletteWheel from '@/components/RouletteWheel'
 import FireworksBackground from '@/components/FireworksBackground'
@@ -84,24 +83,9 @@ export default function Home() {
       />
 
       <div
-        className="relative flex flex-col items-center justify-center min-h-screen px-5 py-8 logo-mobile-pt roulette-center-mobile"
+        className="relative flex flex-col items-center justify-center min-h-screen px-5 py-4 roulette-center-mobile"
         style={{ zIndex: 2 }}
       >
-        <div
-          className="logo-fixed-mobile cursor-pointer select-none mb-1"
-          onClick={toggleFullscreen}
-          title={isFullscreen ? '전체화면 해제' : '전체화면'}
-        >
-          <Image
-            src="/logo.png"
-            alt="월송CC점 GOLFZONPARK"
-            width={260}
-            height={80}
-            style={{ objectFit: 'contain', width: '55%', height: 'auto', display: 'block', margin: '0 auto' }}
-            priority
-          />
-        </div>
-
         {loading ? (
           <div className="text-white text-xl animate-pulse">불러오는 중…</div>
         ) : prizes.length === 0 ? (
