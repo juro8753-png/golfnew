@@ -1403,7 +1403,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
       <button
         id="roulette-spin-btn"
         onClick={spin}
-        disabled={spinning}
+        disabled={spinning || showModal}
         className="relative select-none overflow-hidden"
         style={{
           width: '100%', maxWidth: 300,
