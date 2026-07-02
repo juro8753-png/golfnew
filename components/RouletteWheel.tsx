@@ -363,6 +363,8 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             return g
           }
 
+          // 베이스라인 통일: 숫자와 등 모두 같은 alphabetic 기준선에 맞춤
+          ctx.textBaseline = 'alphabetic'
           const numMatch = rankLabel.match(/^(\d+)(.+)$/)
           if (numMatch) {
             const numPart = numMatch[1]
@@ -374,17 +376,18 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             const startX = cx_t - (numW + sfxW) / 2
             ctx.textAlign = 'left'
             ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkG(rankY - numFontSize * 0.6, rankY + numFontSize * 0.6)
+            ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.fillText(numPart, startX, rankY)
             ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkG(rankY - sfxFontSize * 0.6, rankY + sfxFontSize * 0.6)
+            ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
             ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            ctx.fillStyle = mkG(rankY - numFontSize * 0.6, rankY + numFontSize * 0.6)
+            ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.textAlign = 'center'
             ctx.fillText(rankLabel, cx_t, rankY)
           }
+          ctx.textBaseline = 'middle'
 
           // ── 상품명 ──
           ctx.shadowBlur = 0
