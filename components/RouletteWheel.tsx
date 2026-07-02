@@ -159,7 +159,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
       oc.putImageData(id, 0, 0)
       // 세그먼트 배경색 단색으로 채색 (상품상자와 동일 방식)
       oc.globalCompositeOperation = 'source-in'
-      oc.fillStyle = '#60d0e0'
+      oc.fillStyle = '#3ab0c4'
       oc.fillRect(0, 0, off.width, off.height)
       starCanvasRef.current = off
     }
@@ -572,11 +572,11 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           ['#fff6a0', '#f0be4f', '#c89a28'],
           ['#392205', '#3a2303', '#361c02'],
           ['#e7c9a8', '#ead3af', '#d4af81'],
-          ['#e7c9a8', '#ead3af', '#d4af81'],
+          ['#f2dabb', '#f5e2c8', '#e0c090'],
           ['#3a1200', '#6b2e00', '#3a1200'],
-          ['#ffffff', '#d0f4ff', '#a0e8ff'],
+          ['#f5dfc0', '#f8e8d0', '#e8c898'],
         ]
-        const nameColors = ['#f0d8ff', '#392205', '#e7c9a8', '#e7c9a8', '#3a1200', '#c0f0ff']
+        const nameColors = ['#f0d8ff', '#392205', '#e7c9a8', '#f2dabb', '#3a1200', '#f5dfc0']
         const mobileShrink = size < 500 ? 0.7 : 1
         const numFontSize = Math.round(38 * mobileShrink)
         const sfxFontSize = Math.round(30 * mobileShrink)
@@ -681,6 +681,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             const lw  = lh * (lc.width / lc.height)
             const gap = 54 * s
 
+
             // 반지름에 수직인 좌우 방향 벡터
             const perpX = -Math.sin(midAngle)
             const perpY =  Math.cos(midAngle)
@@ -721,7 +722,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
 
           // ── 별 아이콘 (행운상 세그먼트, 등수 위 빈자리) ──
           if (i === 5 && starCanvasRef.current) {
-            const starSize = 32 * s
+            const starSize = 42 * s
             const starR = contentR + 130 * s
             const starCX = Math.cos(midAngle) * starR
             const starCY = Math.sin(midAngle) * starR
