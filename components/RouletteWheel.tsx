@@ -305,13 +305,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           }
           ctx.fill()
 
-          // 파스텔 오버레이
-          ctx.beginPath()
-          ctx.moveTo(0, 0)
-          ctx.arc(0, 0, 390 * s, start, end)
-          ctx.closePath()
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
-          ctx.fill()
         })
 
         // 4. Golden rod divider spokes (drawn programmatically)
