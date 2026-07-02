@@ -53,30 +53,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
   const laurelCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const giftBoxCanvasesRef = useRef<(HTMLCanvasElement | null)[]>([null, null, null, null, null, null])
   const starCanvasRef = useRef<HTMLCanvasElement | null>(null)
-  const shadowBlobsRef = useRef<Array<{ angle: number; dist: number; radius: number; dark: boolean; alpha: number }>>([])
-
-  if (shadowBlobsRef.current.length === 0) {
-    // 허브 주변 밝은 블롭 3개 고정
-    for (let i = 0; i < 3; i++) {
-      shadowBlobsRef.current.push({
-        angle:  (i / 3) * Math.PI * 2,
-        dist:   0.08 + Math.random() * 0.22,
-        radius: 0.28 + Math.random() * 0.18,
-        dark:   false,
-        alpha:  0.18 + Math.random() * 0.16,
-      })
-    }
-    // 나머지 랜덤 블롭 — 밝은 것 위주
-    for (let i = 0; i < 16; i++) {
-      shadowBlobsRef.current.push({
-        angle:  Math.random() * Math.PI * 2,
-        dist:   0.10 + Math.random() * 0.80,
-        radius: 0.16 + Math.random() * 0.30,
-        dark:   Math.random() > 0.65,   // 35%만 어두움, 65% 밝음
-        alpha:  0.07 + Math.random() * 0.16,
-      })
-    }
-  }
   const router = useRouter()
 
   useEffect(() => {
@@ -119,16 +95,17 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
       const off = document.createElement('canvas')
       off.width  = img.naturalWidth
       off.height = img.naturalHeight
-      const offCtx = off.getContext('2d')!
-      offCtx.drawImage(img, 0, 0)
-      const imageData = offCtx.getImageData(0, 0, off.width, off.height)
-      const d = imageData.data
+      const oc = off.getContext('2d')!
+      oc.drawImage(img, 0, 0)
+      const id = oc.getImageData(0, 0, off.width, off.height)
+      const d = id.data
       for (let j = 0; j < d.length; j += 4) {
-        const r = d[j], g = d[j+1], b = d[j+2]
-        const range = Math.max(r, g, b) - Math.min(r, g, b)
-        if (r > 220 && g > 220 && b > 220 && range < 40) d[j+3] = 0
+        if (d[j] > 200 && d[j+1] > 200 && d[j+2] > 200) d[j+3] = 0
       }
-      offCtx.putImageData(imageData, 0, 0)
+      oc.putImageData(id, 0, 0)
+      oc.globalCompositeOperation = 'source-in'
+      oc.fillStyle = '#e8b820'
+      oc.fillRect(0, 0, off.width, off.height)
       laurelCanvasRef.current = off
     }
   }, [])
@@ -230,11 +207,11 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
 
         const goldGrad = (x0: number, y0: number, x1: number, y1: number) => {
           const g = ctx.createLinearGradient(x0, y0, x1, y1)
-          g.addColorStop(0,    '#fbeaa6')
-          g.addColorStop(0.25, '#c89a36')
-          g.addColorStop(0.5,  '#f7e08e')
-          g.addColorStop(0.72, '#a87a26')
-          g.addColorStop(1,    '#f3d97f')
+          g.addColorStop(0,    '#fff8e0')
+          g.addColorStop(0.25, '#c8921e')
+          g.addColorStop(0.5,  '#ffecc0')
+          g.addColorStop(0.72, '#a87420')
+          g.addColorStop(1,    '#ffe4a0')
           return g
         }
 
@@ -250,7 +227,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
         const rimR = ctx.createRadialGradient(cx, cy - 20 * s, 0, cx, cy - 20 * s, 450 * s)
         rimR.addColorStop(0.60, '#1a140a')
         rimR.addColorStop(0.78, '#0d0a05')
-        rimR.addColorStop(0.90, '#2a1f0e')
+        rimR.addColorStop(0.90, '#0a0704')
         rimR.addColorStop(1,    '#0a0704')
         ctx.fillStyle = rimR
         ctx.fill()
@@ -275,11 +252,11 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           const end   = start + segAngle
           ctx.beginPath()
           ctx.moveTo(0, 0)
-          ctx.arc(0, 0, 390 * s, start, end)
+          ctx.arc(0, 0, 397 * s, start, end)
           ctx.closePath()
           // 세그먼트 0: 이미지 배경색으로 덮어칠하기
           if (i === 0) {
-            const pg = ctx.createLinearGradient(0, 0, 0, -390 * s)
+            const pg = ctx.createLinearGradient(0, 0, 0, -397 * s)
             pg.addColorStop(0,    '#1a0120')
             pg.addColorStop(0.3,  '#2a002e')
             pg.addColorStop(0.6,  '#400a3c')
@@ -294,7 +271,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             pg.addColorStop(1,    '#f0be4f')
             ctx.fillStyle = pg
           } else if (i === 3) {
-            const pg = ctx.createLinearGradient(0, 0, 0, 390 * s)
+            const pg = ctx.createLinearGradient(0, 0, 0, 397 * s)
             pg.addColorStop(0,    '#14052e')
             pg.addColorStop(0.35, '#180439')
             pg.addColorStop(0.65, '#200749')
@@ -302,8 +279,8 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             ctx.fillStyle = pg
           } else if (i === 2) {
             const mid2 = -Math.PI / 2 + segAngle * 2.5 - segAngle / 2
-            const ex = Math.cos(mid2) * 390 * s
-            const ey = Math.sin(mid2) * 390 * s
+            const ex = Math.cos(mid2) * 397 * s
+            const ey = Math.sin(mid2) * 397 * s
             const pg = ctx.createLinearGradient(0, 0, ex, ey)
             pg.addColorStop(0,    '#012350')
             pg.addColorStop(0.4,  '#03265e')
@@ -335,10 +312,10 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             ctx.save()
             ctx.beginPath()
             ctx.moveTo(0, 0)
-            ctx.arc(0, 0, 390 * s, start, end)
+            ctx.arc(0, 0, 397 * s, start, end)
             ctx.closePath()
             ctx.clip()
-            const angDark = ctx.createLinearGradient(-390 * s, 0, 390 * s, 0)
+            const angDark = ctx.createLinearGradient(-397 * s, 0, 397 * s, 0)
             angDark.addColorStop(0,    'rgba(0,0,0,0.55)')
             angDark.addColorStop(0.22, 'rgba(0,0,0,0.40)')
             angDark.addColorStop(0.42, 'rgba(0,0,0,0.08)')
@@ -347,38 +324,100 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             angDark.addColorStop(0.78, 'rgba(0,0,0,0.40)')
             angDark.addColorStop(1,    'rgba(0,0,0,0.55)')
             ctx.fillStyle = angDark
-            ctx.fillRect(-390 * s, -390 * s, 780 * s, 780 * s)
+            ctx.fillRect(-397 * s, -397 * s, 800 * s, 800 * s)
+            ctx.restore()
+          }
+
+          // 행운상(5): 1시 방향만 밝고 11시·4시 방향으로 어두워지는 스팟
+          if (i === 5) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, 397 * s, start, end)
+            ctx.closePath()
+            ctx.clip()
+            // 1시 방향 = -π/3
+            const angle1 = -Math.PI / 3
+            const sx = Math.cos(angle1) * 180 * s
+            const sy = Math.sin(angle1) * 180 * s
+            const spot = ctx.createRadialGradient(sx, sy, 0, sx, sy, 360 * s)
+            spot.addColorStop(0,    'rgba(255,255,255,0.18)')
+            spot.addColorStop(0.25, 'rgba(255,255,255,0.08)')
+            spot.addColorStop(0.50, 'rgba(0,0,0,0)')
+            spot.addColorStop(0.75, 'rgba(0,0,0,0.08)')
+            spot.addColorStop(1,    'rgba(0,0,0,0.20)')
+            ctx.fillStyle = spot
+            ctx.fillRect(-397 * s, -397 * s, 800 * s, 800 * s)
+            ctx.restore()
+          }
+
+          // 3등 세그먼트(2): 11시 밝고 4시 방향으로 점점 어두워지는 그림자
+          if (i === 2) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, 397 * s, start, end)
+            ctx.closePath()
+            ctx.clip()
+            const x0 = Math.cos(-2 * Math.PI / 3) * 397 * s  // 11시 (밝음)
+            const y0 = Math.sin(-2 * Math.PI / 3) * 397 * s
+            const x1 = Math.cos(Math.PI / 6) * 397 * s        // 4시 (어두움)
+            const y1 = Math.sin(Math.PI / 6) * 397 * s
+            const sg2 = ctx.createLinearGradient(x0, y0, x1, y1)
+            sg2.addColorStop(0,    'rgba(0,0,0,0)')
+            sg2.addColorStop(0.55, 'rgba(0,0,0,0)')
+            sg2.addColorStop(0.78, 'rgba(0,0,0,0.12)')
+            sg2.addColorStop(1,    'rgba(0,0,0,0.38)')
+            ctx.fillStyle = sg2
+            ctx.fillRect(-397 * s, -397 * s, 800 * s, 800 * s)
+            ctx.restore()
+          }
+
+          // 4등 세그먼트(3): 12시 밝고 6시 방향으로 점점 어두워지는 그림자
+          if (i === 3) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, 397 * s, start, end)
+            ctx.closePath()
+            ctx.clip()
+            const sg3 = ctx.createLinearGradient(0, -397 * s, 0, 397 * s)
+            sg3.addColorStop(0,    'rgba(0,0,0,0)')
+            sg3.addColorStop(0.55, 'rgba(0,0,0,0)')
+            sg3.addColorStop(0.78, 'rgba(0,0,0,0.12)')
+            sg3.addColorStop(1,    'rgba(0,0,0,0.38)')
+            ctx.fillStyle = sg3
+            ctx.fillRect(-397 * s, -397 * s, 800 * s, 800 * s)
+            ctx.restore()
+          }
+
+          // 노란 세그먼트(1,4): 4시 방향 밝고 9시 방향으로 점점 어두워지는 그림자
+          if (i === 1 || i === 4) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, 397 * s, start, end)
+            ctx.closePath()
+            ctx.clip()
+            // 9시(π) → 4시(π/6) 방향: 4시쪽이 어둡고 9시쪽이 밝게
+            const x1 = Math.cos(Math.PI / 6) * 397 * s
+            const y1 = Math.sin(Math.PI / 6) * 397 * s
+            const sg = ctx.createLinearGradient(-397 * s, 0, x1, y1)
+            sg.addColorStop(0,    'rgba(0,0,0,0)')
+            sg.addColorStop(0.55, 'rgba(0,0,0,0)')
+            sg.addColorStop(0.78, 'rgba(0,0,0,0.12)')
+            sg.addColorStop(1,    'rgba(0,0,0,0.38)')
+            ctx.fillStyle = sg
+            ctx.fillRect(-397 * s, -397 * s, 800 * s, 800 * s)
             ctx.restore()
           }
 
         })
 
-        // 3-b. 랜덤 밝기 블롭 (밝은 곳 / 어두운 곳 섞어서 자연스러운 불규칙 음영)
-        {
-          ctx.save()
-          ctx.beginPath()
-          ctx.arc(0, 0, 388 * s, 0, Math.PI * 2)
-          ctx.clip()
-          shadowBlobsRef.current.forEach(b => {
-            const bx = Math.cos(b.angle) * b.dist * 390 * s
-            const by = Math.sin(b.angle) * b.dist * 390 * s
-            const br = b.radius * 390 * s
-            const grad = ctx.createRadialGradient(bx, by, 0, bx, by, br)
-            const col = b.dark
-              ? `rgba(0,0,0,${(b.alpha * 0.65).toFixed(3)})`
-              : `rgba(255,248,200,${b.alpha})`
-            grad.addColorStop(0, col)
-            grad.addColorStop(1, 'rgba(0,0,0,0)')
-            ctx.fillStyle = grad
-            ctx.fillRect(-390 * s, -390 * s, 780 * s, 780 * s)
-          })
-          ctx.restore()
-        }
-
         // 4. Golden rod divider spokes (drawn programmatically)
         prizes.forEach((_, i) => {
           const ea      = -Math.PI / 2 - segAngle / 2 + i * segAngle
-          const outerR  = 390 * s
+          const outerR  = 397 * s
           const halfLen = outerR / 2
           const sR = 4.5 * s   // shaft radius
           const bR = 10  * s   // ball radius
@@ -400,13 +439,13 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           // Cylindrical shading gradient — 중앙 하이라이트, 테두리로 갈수록 어두운 그림자
           const cylG = (w: number) => {
             const g = ctx.createLinearGradient(-w, 0, w, 0)
-            g.addColorStop(0,    '#3a2000')   // 왼쪽 테두리: 짙은 그림자
-            g.addColorStop(0.18, '#8a5c10')   // 반그림자
-            g.addColorStop(0.38, '#e0aa30')   // 빛받는 면
-            g.addColorStop(0.50, '#fff8d0')   // 중앙 하이라이트 (가장 밝음)
-            g.addColorStop(0.62, '#e0aa30')   // 빛받는 면
-            g.addColorStop(0.82, '#8a5c10')   // 반그림자
-            g.addColorStop(1,    '#3a2000')   // 오른쪽 테두리: 짙은 그림자
+            g.addColorStop(0,    '#2a1400')
+            g.addColorStop(0.18, '#7a4c10')
+            g.addColorStop(0.38, '#d4901e')
+            g.addColorStop(0.50, '#fff5e0')
+            g.addColorStop(0.62, '#d4901e')
+            g.addColorStop(0.82, '#7a4c10')
+            g.addColorStop(1,    '#2a1400')
             return g
           }
 
@@ -489,11 +528,43 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
 
         // 5. Gold ring stroke at r=394*s, width=11*s
         ctx.beginPath()
-        ctx.arc(0, 0, 394 * s, 0, Math.PI * 2)
-        ctx.strokeStyle = goldGrad(-394 * s, -394 * s, 394 * s, 394 * s)
+        ctx.arc(0, 0, 401 * s, 0, Math.PI * 2)
+        ctx.strokeStyle = goldGrad(-401 * s, -401 * s, 401 * s, 401 * s)
         ctx.lineWidth = 11 * s
         ctx.lineCap = 'butt'
         ctx.stroke()
+
+        // 5-b. 안쪽 테두리 링 원통 셰이딩
+        {
+          ctx.save()
+          ctx.beginPath()
+          ctx.arc(0, 0, 407 * s, 0, Math.PI * 2, false)
+          ctx.arc(0, 0, 395 * s, 0, Math.PI * 2, true)
+          ctx.clip()
+
+          // 단면: 링 중앙(r=394) 밝고 내/외 가장자리 어둡게 (안쪽 그림자 깊게 침투)
+          const rc = ctx.createRadialGradient(0, 0, 395 * s, 0, 0, 407 * s)
+          rc.addColorStop(0,    'rgba(0,0,0,0.75)')
+          rc.addColorStop(0.18, 'rgba(0,0,0,0.55)')
+          rc.addColorStop(0.42, 'rgba(255,210,120,0.38)')
+          rc.addColorStop(0.58, 'rgba(255,248,220,0.72)')
+          rc.addColorStop(0.75, 'rgba(255,200,100,0.30)')
+          rc.addColorStop(1,    'rgba(0,0,0,0.58)')
+          ctx.fillStyle = rc
+          ctx.fillRect(-407 * s, -407 * s, 800 * s, 800 * s)
+
+          // 조명 방향: 12시 밝고 6시 어둡게
+          const rl = ctx.createLinearGradient(0, -407 * s, 0, 407 * s)
+          rl.addColorStop(0,    'rgba(255,245,200,0.42)')
+          rl.addColorStop(0.20, 'rgba(255,235,180,0.14)')
+          rl.addColorStop(0.50, 'rgba(0,0,0,0)')
+          rl.addColorStop(0.78, 'rgba(0,0,0,0.18)')
+          rl.addColorStop(1,    'rgba(0,0,0,0.44)')
+          ctx.fillStyle = rl
+          ctx.fillRect(-407 * s, -407 * s, 800 * s, 800 * s)
+
+          ctx.restore()
+        }
 
         // 6. Labels: rank + prize name — 같은 위치에 위아래 배치
         const RANKS = ['1등', '2등', '3등', '4등', '5등', '행운상']
@@ -507,9 +578,9 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
         ]
         const nameColors = ['#f0d8ff', '#392205', '#e7c9a8', '#e7c9a8', '#3a1200', '#c0f0ff']
         const mobileShrink = size < 500 ? 0.7 : 1
-        const numFontSize = Math.round(36 * mobileShrink)
+        const numFontSize = Math.round(38 * mobileShrink)
         const sfxFontSize = Math.round(30 * mobileShrink)
-        const nameFontSize = Math.round(15 * mobileShrink)
+        const nameFontSize = Math.round(17 * mobileShrink)
 
         // 선물박스 아이콘 (보라 세그먼트, 상품명 아래)
         prizes.forEach((_, i) => {
@@ -578,9 +649,10 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.fillText(numPart, startX, rankY)
+            const sfxY = rankY - (numFontSize - sfxFontSize) * 0.41
             ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
-            ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
-            ctx.fillText(sfxPart, startX + numW, rankY)
+            ctx.fillStyle = mkG(sfxY - sfxFontSize * 0.8, sfxY + sfxFontSize * 0.2)
+            ctx.fillText(sfxPart, startX + numW, sfxY)
           } else {
             const luckyFontSize = Math.round(28 * mobileShrink)
             ctx.font = `900 ${luckyFontSize}px "Noto Serif KR", serif`
@@ -617,8 +689,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             const textCX = cx_t
             const textCY = rankY - numFontSize * 0.28
 
-            ctx.filter = 'sepia(1) saturate(5) hue-rotate(5deg) brightness(1.4)'
-
             // 왼쪽
             ctx.save()
             ctx.translate(textCX - perpX * (gap + lw / 2), textCY - perpY * (gap + lw / 2))
@@ -633,8 +703,6 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
             ctx.scale(-1, 1)
             ctx.drawImage(lc, -lw / 2, -lh / 2, lw, lh)
             ctx.restore()
-
-            ctx.filter = 'none'
           }
 
           // ── 왕관 이미지 (1등 세그먼트만) ──
@@ -717,29 +785,114 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           ctx.restore()
         })
 
-        // 7. Bulbs at r=405*s (24, alternating blink)
-        const bulbPhase = Math.floor(Date.now() / 300)
+        // 7-a. Rivets between bulbs (금속 못 머리)
+        for (let i = 0; i < 24; i++) {
+          const ra = -Math.PI / 2 + ((i + 0.5) / 24) * Math.PI * 2
+          const rx = Math.cos(ra) * 425 * s
+          const ry = Math.sin(ra) * 425 * s
+          const rr = 5 * s
+
+          // 베이스: 오프셋 방사형으로 금속 구체 느낌
+          ctx.beginPath()
+          ctx.arc(rx, ry, rr, 0, Math.PI * 2)
+          const rmg = ctx.createRadialGradient(rx - rr * 0.30, ry - rr * 0.35, 0, rx, ry, rr)
+          rmg.addColorStop(0,    '#9a8858')
+          rmg.addColorStop(0.35, '#6a5428')
+          rmg.addColorStop(0.70, '#301e08')
+          rmg.addColorStop(1,    '#0e0602')
+          ctx.fillStyle = rmg
+          ctx.fill()
+
+          // 스페큘러 하이라이트
+          ctx.beginPath()
+          ctx.arc(rx, ry, rr, 0, Math.PI * 2)
+          const rsp = ctx.createRadialGradient(rx - rr * 0.28, ry - rr * 0.32, 0, rx - rr * 0.18, ry - rr * 0.18, rr * 0.52)
+          rsp.addColorStop(0,   'rgba(255,248,200,0.70)')
+          rsp.addColorStop(0.5, 'rgba(255,235,150,0.18)')
+          rsp.addColorStop(1,   'rgba(0,0,0,0)')
+          ctx.fillStyle = rsp
+          ctx.fill()
+
+          // 테두리 그림자
+          ctx.beginPath()
+          ctx.arc(rx, ry, rr, 0, Math.PI * 2)
+          ctx.strokeStyle = '#0a0602'
+          ctx.lineWidth = 1.2 * s
+          ctx.stroke()
+        }
+
+        // 7. Bulbs at r=405*s (24, alternating blink + fast pulse glow)
+        const now7    = Date.now()
+        const bulbPhase = Math.floor(now7 / 300)
+        const glowT   = (now7 % 280) / 280                   // 280ms 주기
+        const glowPulse = (Math.sin(glowT * Math.PI * 2) + 1) / 2  // 0~1
+
         for (let i = 0; i < 24; i++) {
           const ba = -Math.PI / 2 + (i / 24) * Math.PI * 2
-          const bx = Math.cos(ba) * 421 * s
-          const by = Math.sin(ba) * 421 * s
+          const bx = Math.cos(ba) * 425 * s
+          const by = Math.sin(ba) * 425 * s
           const isLit = (i + bulbPhase) % 2 === 0
           const br = (isLit ? 13 : 12) * s
+
+          // 켜진 전구: 빛이 퍼지고 사라지는 글로우 헤일로
+          if (isLit) {
+            const glowR = br * (2.2 + glowPulse * 2.5)
+            const glowA = glowPulse * 0.55
+            ctx.beginPath()
+            ctx.arc(bx, by, glowR, 0, Math.PI * 2)
+            const gg = ctx.createRadialGradient(bx, by, 0, bx, by, glowR)
+            gg.addColorStop(0,   `rgba(255,240,180,${glowA.toFixed(3)})`)
+            gg.addColorStop(0.3, `rgba(255,200,100,${(glowA * 0.65).toFixed(3)})`)
+            gg.addColorStop(0.6, `rgba(255,160,60,${(glowA * 0.25).toFixed(3)})`)
+            gg.addColorStop(1,   'rgba(255,130,20,0)')
+            ctx.fillStyle = gg
+            ctx.fill()
+          }
+
           ctx.beginPath()
           ctx.arc(bx, by, br, 0, Math.PI * 2)
-          const bg = ctx.createRadialGradient(bx, by, 0, bx, by, br)
           if (isLit) {
-            bg.addColorStop(0,    '#ffffff')
-            bg.addColorStop(0.35, '#fffbe8')
-            bg.addColorStop(0.70, '#ffe8a0')
-            bg.addColorStop(1,    '#ffcc44')
+            const bg = ctx.createRadialGradient(bx, by, 0, bx, by, br)
+            bg.addColorStop(0,    '#fffef0')
+            bg.addColorStop(0.30, '#ffecc0')
+            bg.addColorStop(0.65, '#ffb84a')
+            bg.addColorStop(1,    '#e07820')
+            ctx.fillStyle = bg
+            ctx.fill()
           } else {
-            bg.addColorStop(0,    '#c8a050')
-            bg.addColorStop(0.50, '#7a5a20')
-            bg.addColorStop(1,    '#3a2a0a')
+            // 3D 구체: 빛이 좌상단에서 오는 오프셋 그라디언트
+            const ox = bx - br * 0.28
+            const oy = by - br * 0.32
+            const bg = ctx.createRadialGradient(ox, oy, 0, bx, by, br)
+            bg.addColorStop(0,    '#c09040')
+            bg.addColorStop(0.30, '#8a6020')
+            bg.addColorStop(0.65, '#4a2e08')
+            bg.addColorStop(1,    '#150900')
+            ctx.fillStyle = bg
+            ctx.fill()
+
+            // 스페큘러 하이라이트 (좌상단 작은 반짝임)
+            ctx.beginPath()
+            ctx.arc(bx, by, br, 0, Math.PI * 2)
+            const sp = ctx.createRadialGradient(ox, oy, 0, ox, oy, br * 0.55)
+            sp.addColorStop(0,   'rgba(255,240,180,0.52)')
+            sp.addColorStop(0.4, 'rgba(255,230,140,0.18)')
+            sp.addColorStop(1,   'rgba(255,220,100,0)')
+            ctx.fillStyle = sp
+            ctx.fill()
+
+            // 하단 림 그림자 (구체 아랫면 어둠)
+            ctx.beginPath()
+            ctx.arc(bx, by, br, 0, Math.PI * 2)
+            const sh = ctx.createRadialGradient(bx + br * 0.2, by + br * 0.3, 0, bx, by, br)
+            sh.addColorStop(0,   'rgba(0,0,0,0)')
+            sh.addColorStop(0.5, 'rgba(0,0,0,0.10)')
+            sh.addColorStop(1,   'rgba(0,0,0,0.42)')
+            ctx.fillStyle = sh
+            ctx.fill()
           }
-          ctx.fillStyle = bg
-          ctx.fill()
+          ctx.beginPath()
+          ctx.arc(bx, by, br, 0, Math.PI * 2)
           ctx.strokeStyle = '#7d4f17'
           ctx.lineWidth = 1.5
           ctx.stroke()
