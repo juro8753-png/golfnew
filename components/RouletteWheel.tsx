@@ -333,7 +333,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
         ]
         const nameColors = ['#f0d8ff', '#3a1200', '#c8e4ff', '#d8ccff', '#3a1200', '#c0f0ff']
         const numFontSize = 36
-        const sfxFontSize = 23
+        const sfxFontSize = 24
         const nameFontSize = 15
 
         prizes.forEach((prize, i) => {
