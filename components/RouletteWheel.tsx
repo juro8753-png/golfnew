@@ -48,7 +48,6 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>()
   const hubLogoImgRef = useRef<HTMLImageElement | null>(null)
   const pointerImgRef = useRef<HTMLImageElement | null>(null)
-  const rodImgRef = useRef<HTMLImageElement | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -63,29 +62,6 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
     img.onload = () => { pointerImgRef.current = img }
   }, [])
 
-  useEffect(() => {
-    const img = new Image()
-    img.src = '/rod.png'
-    img.onload = () => {
-      const oc = document.createElement('canvas')
-      oc.width = img.naturalWidth
-      oc.height = img.naturalHeight
-      const octx = oc.getContext('2d')!
-      octx.drawImage(img, 0, 0)
-      const imgData = octx.getImageData(0, 0, oc.width, oc.height)
-      const d = imgData.data
-      for (let j = 0; j < d.length; j += 4) {
-        const r = d[j], g = d[j + 1], b = d[j + 2]
-        // 밝고 채도 낮은 픽셀(흰/회색 배경)만 투명 처리 — 금색 픽셀은 chroma가 크므로 보존
-        const chroma = Math.max(r, g, b) - Math.min(r, g, b)
-        if (r > 180 && g > 180 && b > 180 && chroma < 50) d[j + 3] = 0
-      }
-      octx.putImageData(imgData, 0, 0)
-      const processed = new Image()
-      processed.onload = () => { rodImgRef.current = processed }
-      processed.src = oc.toDataURL()
-    }
-  }, [])
 
 
   // 테마 변경 감지
@@ -239,33 +215,18 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.fill()
         })
 
-        // 4. Rod images on divider spokes (center → outer gold ring)
+        // 4. Gold divider spokes (from 52*s to 390*s)
         prizes.forEach((_, i) => {
           const ea = -Math.PI / 2 - segAngle / 2 + i * segAngle
-          if (rodImgRef.current) {
-            const innerR = 0          // 내부 공은 허브/로고 아래 숨겨짐
-            const outerR = 393 * s    // 외곽 골드링 안쪽
-            const rodLength = outerR - innerR
-            const rodWidth = Math.min(rodLength * (rodImgRef.current.naturalWidth / rodImgRef.current.naturalHeight), 26 * s)
-            const midR = outerR / 2
-            const midX = Math.cos(ea) * midR
-            const midY = Math.sin(ea) * midR
-            ctx.save()
-            ctx.translate(midX, midY)
-            ctx.rotate(ea - Math.PI / 2)
-            ctx.drawImage(rodImgRef.current, -rodWidth / 2, -rodLength / 2, rodWidth, rodLength)
-            ctx.restore()
-          } else {
-            const x1 = Math.cos(ea) * 52 * s, y1 = Math.sin(ea) * 52 * s
-            const x2 = Math.cos(ea) * 390 * s, y2 = Math.sin(ea) * 390 * s
-            ctx.beginPath()
-            ctx.moveTo(x1, y1)
-            ctx.lineTo(x2, y2)
-            ctx.strokeStyle = '#c89a36'
-            ctx.lineWidth = 4 * s
-            ctx.lineCap = 'butt'
-            ctx.stroke()
-          }
+          const x1 = Math.cos(ea) * 52 * s, y1 = Math.sin(ea) * 52 * s
+          const x2 = Math.cos(ea) * 390 * s, y2 = Math.sin(ea) * 390 * s
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.strokeStyle = '#c89a36'
+          ctx.lineWidth = 4 * s
+          ctx.lineCap = 'butt'
+          ctx.stroke()
         })
 
         // 5. Gold ring stroke at r=394*s, width=11*s
@@ -471,10 +432,10 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
         ctx.restore()  // end rotation
 
-        // 허브 로고 오버레이 (회전 없이 중앙 고정, 봉에 가려지지 않도록 위로 올림)
+        // 허브 로고 오버레이 (회전 없이 중앙 고정)
         if (hubLogoImgRef.current) {
           const logoSize = 75 * s * 3
-          ctx.drawImage(hubLogoImgRef.current, cx - logoSize / 2, cy - logoSize / 2 - 30 * s, logoSize, logoSize)
+          ctx.drawImage(hubLogoImgRef.current, cx - logoSize / 2, cy - logoSize / 2, logoSize, logoSize)
         }
 
         // 포인터 오버레이 (상단 정중앙 고정)
