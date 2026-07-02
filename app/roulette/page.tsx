@@ -58,18 +58,18 @@ export default function Home() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#000', fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 배경 이미지 — 가로/세로 전환 */}
+      {/* 배경 이미지 — 방향에 따라 src 전환 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/roulette-bg.png"
+        src={isPortrait ? '/roulette-bg-portrait.png' : '/roulette-bg.png'}
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 0 : 1, transform: 'scaleX(1.15)' }}
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/roulette-bg-portrait.png"
-        alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 1 : 0 }}
+        style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block',
+          objectFit: isPortrait ? 'cover' : 'contain',
+          objectPosition: 'center',
+          transform: isPortrait ? 'none' : 'scaleX(1.15)',
+          transition: 'opacity 0.3s ease',
+        }}
       />
 
       {/* 폭죽 + 반짝이 */}
