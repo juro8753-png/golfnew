@@ -33,6 +33,7 @@ export default function LandingPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [bgGradient, setBgGradient] = useState(BG_THEMES.emerald_black.gradient)
   const [isPortrait, setIsPortrait] = useState(false)
+  const [navigating, setNavigating] = useState(false)
 
   useEffect(() => {
     const checkPortrait = () => setIsPortrait(window.innerHeight > window.innerWidth)
@@ -236,17 +237,25 @@ export default function LandingPage() {
           {/* CTA 버튼 */}
           <div style={{ marginTop: 36, display: 'flex', justifyContent: 'center', width: '100%' }}>
             <button
-              onClick={() => { playChime(); soundEngine.bgStart(); setTimeout(() => router.push('/roulette'), 100) }}
+              onClick={() => {
+                if (navigating) return
+                setNavigating(true)
+                playChime()
+                router.push('/roulette')
+              }}
+              disabled={navigating}
               style={{
                 position: 'relative',
                 overflow: 'hidden',
                 width: '75%',
                 padding: '17px 20px',
-                background: 'linear-gradient(180deg,#fbe08a,#f2bd3e 48%,#e29a1b)',
+                background: navigating
+                  ? 'linear-gradient(180deg,#c9b060,#a88a2e 48%,#8a6a10)'
+                  : 'linear-gradient(180deg,#fbe08a,#f2bd3e 48%,#e29a1b)',
                 borderRadius: 56,
                 border: '4px solid #f5c832',
                 boxShadow: '0 0 0 1px #c07812, 0 0 14px 3px rgba(245,200,50,0.5)',
-                cursor: 'pointer',
+                cursor: navigating ? 'default' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -256,8 +265,10 @@ export default function LandingPage() {
                 color: '#1a0800',
                 fontFamily: "'Noto Sans KR', sans-serif",
                 letterSpacing: '-0.01em',
-                animation: 'btnGlow 2s ease-in-out infinite',
+                animation: navigating ? 'none' : 'btnGlow 2s ease-in-out infinite',
                 WebkitTapHighlightColor: 'transparent',
+                opacity: navigating ? 0.75 : 1,
+                transition: 'opacity 0.15s, background 0.15s',
               }}
             >
               <span style={{
@@ -266,18 +277,20 @@ export default function LandingPage() {
                 backgroundSize: '220% 100%',
                 animation: 'sheen 3.2s ease-in-out infinite',
               }} />
-              <span style={{ position: 'relative' }}>이벤트 참여하기</span>
-              <span
-                style={{
-                  position: 'relative',
-                  fontSize: 24,
-                  fontWeight: 900,
-                  animation: 'arrowNudge 1.4s ease-in-out infinite',
-                  display: 'inline-block',
-                }}
-              >
-                ›
-              </span>
+              <span style={{ position: 'relative' }}>{navigating ? '이동 중…' : '이벤트 참여하기'}</span>
+              {!navigating && (
+                <span
+                  style={{
+                    position: 'relative',
+                    fontSize: 24,
+                    fontWeight: 900,
+                    animation: 'arrowNudge 1.4s ease-in-out infinite',
+                    display: 'inline-block',
+                  }}
+                >
+                  ›
+                </span>
+              )}
             </button>
           </div>
           </div>
