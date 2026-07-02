@@ -51,6 +51,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   const crownCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const laurelCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const giftBoxCanvasesRef = useRef<(HTMLCanvasElement | null)[]>([null, null, null, null, null, null])
+  const starCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   }, [])
 
   useEffect(() => {
-    const segColors: (string | null)[] = ['#c060ff', null, null, '#8060e0', null, null]
+    const segColors: (string | null)[] = ['#c060ff', '#fff5a0', '#60a8ff', '#8060e0', '#c8a060', '#60d0e0']
     const img = new Image()
     img.src = '/giftbox.png'
     img.onload = () => {
@@ -136,6 +137,30 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
     }
   }, [])
 
+
+  useEffect(() => {
+    const img = new Image()
+    img.src = '/star.png'
+    img.onload = () => {
+      const off = document.createElement('canvas')
+      off.width = img.naturalWidth
+      off.height = img.naturalHeight
+      const oc = off.getContext('2d')!
+      oc.drawImage(img, 0, 0)
+      // 흰 배경 제거
+      const id = oc.getImageData(0, 0, off.width, off.height)
+      const d = id.data
+      for (let j = 0; j < d.length; j += 4) {
+        if (d[j] > 200 && d[j+1] > 200 && d[j+2] > 200) d[j+3] = 0
+      }
+      oc.putImageData(id, 0, 0)
+      // 세그먼트 배경색 단색으로 채색 (상품상자와 동일 방식)
+      oc.globalCompositeOperation = 'source-in'
+      oc.fillStyle = '#60d0e0'
+      oc.fillRect(0, 0, off.width, off.height)
+      starCanvasRef.current = off
+    }
+  }, [])
 
   // 테마 변경 감지
   useEffect(() => {
@@ -310,17 +335,14 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const collarOuter = halfLen - bR * 2       // collar outer edge (below ball)
           const collarInner = collarOuter - cH       // collar inner edge
 
-          // Cylindrical shading gradient (horizontal = perpendicular to rod)
+          // Cylindrical shading gradient — 전구처럼 밝은 노란빛
           const cylG = (w: number) => {
             const g = ctx.createLinearGradient(-w, 0, w, 0)
             g.addColorStop(0,    '#ffffff')
-            g.addColorStop(0.07, '#fef4c0')
-            g.addColorStop(0.18, '#fce878')
-            g.addColorStop(0.35, '#f0c840')
-            g.addColorStop(0.50, '#d4a830')
-            g.addColorStop(0.65, '#e8c040')
-            g.addColorStop(0.82, '#fce878')
-            g.addColorStop(0.93, '#fef4c0')
+            g.addColorStop(0.20, '#ffe8a0')
+            g.addColorStop(0.45, '#ffcc44')
+            g.addColorStop(0.55, '#ffcc44')
+            g.addColorStop(0.80, '#ffe8a0')
             g.addColorStop(1,    '#ffffff')
             return g
           }
@@ -398,20 +420,19 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
         const RANKS = ['1등', '2등', '3등', '4등', '5등', '행운상']
         const rankGradParams = [
           ['#fff6a0', '#f0be4f', '#c89a28'],
-          ['#3a1200', '#6b2e00', '#3a1200'],
-          ['#fff6a0', '#f0be4f', '#c89a28'],
-          ['#fff6a0', '#f0be4f', '#c89a28'],
+          ['#392205', '#3a2303', '#361c02'],
+          ['#e7c9a8', '#ead3af', '#d4af81'],
+          ['#e7c9a8', '#ead3af', '#d4af81'],
           ['#3a1200', '#6b2e00', '#3a1200'],
           ['#ffffff', '#d0f4ff', '#a0e8ff'],
         ]
-        const nameColors = ['#f0d8ff', '#3a1200', '#c8e4ff', '#d8ccff', '#3a1200', '#c0f0ff']
+        const nameColors = ['#f0d8ff', '#392205', '#e7c9a8', '#e7c9a8', '#3a1200', '#c0f0ff']
         const numFontSize = 36
         const sfxFontSize = 30
         const nameFontSize = 15
 
         // 선물박스 아이콘 (보라 세그먼트, 상품명 아래)
         prizes.forEach((_, i) => {
-          if (i !== 0 && i !== 3) return
           const gbCanvas = giftBoxCanvasesRef.current[i]
           if (!gbCanvas) return
           const midAngle = -Math.PI / 2 - segAngle / 2 + i * segAngle + segAngle / 2
@@ -420,12 +441,13 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const cy_t = Math.sin(midAngle) * contentR
           const nameY  = cy_t + numFontSize * 0.65
 
-          const drawW = 26 * s
+          const drawW = 36 * s
           const drawH = drawW * (gbCanvas.height / gbCanvas.width)
-          const iconY  = nameY + drawH * 0.5 + (i === 0 ? 50 : 65) * s
+          const iconY  = nameY + drawH * 0.5 + ([42,29,69,50,69,29][i] ?? 45) * s
 
+          const iconXOff = ([0, 18, 18, 0, -18, -18][i] ?? 0) * s
           ctx.save()
-          ctx.translate(cx_t, iconY)
+          ctx.translate(cx_t + iconXOff, iconY)
           ctx.globalAlpha = 0.5
           ctx.drawImage(gbCanvas, -drawW / 2, -drawH / 2, drawW, drawH)
           ctx.restore()
@@ -441,6 +463,8 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const cy_t = Math.sin(midAngle) * contentR
           const rankY = cy_t - nameFontSize * 0.7   // 등수: 중심보다 약간 위
           const nameY = cy_t + numFontSize * 0.65   // 상품명: 등수 바로 아래
+          // 세그먼트별 텍스트 미세 X 조정 (2등·3등 우측, 5등·행운상 좌측)
+          const textXOff = ([0, 12, 12, 0, -12, -12][i] ?? 0) * s
 
           ctx.save()
           ctx.textAlign = 'center'
@@ -464,23 +488,35 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           if (numMatch) {
             const numPart = numMatch[1]
             const sfxPart = numMatch[2]
-            ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             const numW = ctx.measureText(numPart).width
-            ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             const sfxW = ctx.measureText(sfxPart).width
-            const startX = cx_t - (numW + sfxW) / 2
+            const startX = cx_t + textXOff - (numW + sfxW) / 2
             ctx.textAlign = 'left'
-            ctx.font = `900 ${numFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.font = `900 ${numFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - numFontSize * 0.8, rankY + numFontSize * 0.2)
             ctx.fillText(numPart, startX, rankY)
-            ctx.font = `900 ${sfxFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.font = `900 ${sfxFontSize}px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - sfxFontSize * 0.8, rankY + sfxFontSize * 0.2)
             ctx.fillText(sfxPart, startX + numW, rankY)
           } else {
-            ctx.font = `900 30px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
+            ctx.font = `900 30px "궁서", "Gungsuh", "GungSeo", serif`
             ctx.fillStyle = mkG(rankY - 30 * 0.8, rankY + 30 * 0.2)
+            ctx.textAlign = 'left'
+            {
+              const ch0 = '행', ch1 = '운', ch2 = '상'
+              const w0 = ctx.measureText(ch0).width
+              const w1 = ctx.measureText(ch1).width
+              const w2 = ctx.measureText(ch2).width
+              const tight = 4   // 행↔운 좁히는 픽셀
+              const totalW = w0 + w1 + w2 - tight
+              const sx = cx_t + textXOff - totalW / 2
+              ctx.fillText(ch0, sx, rankY)
+              ctx.fillText(ch1, sx + w0 - tight, rankY)
+              ctx.fillText(ch2, sx + w0 - tight + w1, rankY)
+            }
             ctx.textAlign = 'center'
-            ctx.fillText(rankLabel, cx_t, rankY)
           }
           ctx.textBaseline = 'middle'
 
@@ -489,7 +525,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             const lc  = laurelCanvasRef.current
             const lh  = 58 * s
             const lw  = lh * (lc.width / lc.height)
-            const gap = 42 * s
+            const gap = 54 * s
 
             // 반지름에 수직인 좌우 방향 벡터
             const perpX = -Math.sin(midAngle)
@@ -533,6 +569,18 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             ctx.restore()
           }
 
+          // ── 별 아이콘 (행운상 세그먼트, 등수 위 빈자리) ──
+          if (i === 5 && starCanvasRef.current) {
+            const starSize = 32 * s
+            const starR = contentR + 130 * s
+            const starCX = Math.cos(midAngle) * starR
+            const starCY = Math.sin(midAngle) * starR
+            ctx.save()
+            ctx.translate(starCX + 100 * s, starCY - 30 * s)
+            ctx.drawImage(starCanvasRef.current, -starSize / 2, -starSize / 2, starSize, starSize)
+            ctx.restore()
+          }
+
           // ── 상품명 ──
           ctx.shadowBlur = 0
           ctx.shadowOffsetY = 0
@@ -567,11 +615,13 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           }
 
           // 글자 크기 자동 축소: 3줄 초과 시 줄어듦
+          // \n 강제 줄바꿈 우선 처리 후 각 단락 wrap
           let curFontSize = nameFontSize
           let lines: string[] = []
           for (let attempt = 0; attempt < 6; attempt++) {
             ctx.font = `bold ${curFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
-            lines = wrapLines(prize.name, maxW)
+            const paragraphs = prize.name.split('\n')
+            lines = paragraphs.flatMap(p => wrapLines(p, maxW))
             if (lines.length <= 3) break
             curFontSize = Math.max(8, curFontSize - 2)
           }
@@ -579,7 +629,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const lineH = curFontSize * 1.25
           const totalH = (lines.length - 1) * lineH
           lines.forEach((line, li) => {
-            ctx.fillText(line, cx_t, nameY - totalH / 2 + li * lineH)
+            ctx.fillText(line, cx_t + textXOff, nameY - totalH / 2 + li * lineH)
           })
 
           ctx.restore()

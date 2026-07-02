@@ -436,12 +436,14 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold mb-6">{editing ? '상품 수정' : '상품 추가'}</h2>
 
             <div className="space-y-4">
-              <Field label="상품명">
-                <input
+              <Field label="상품명 (엔터로 줄바꿈)">
+                <textarea
                   className="input"
+                  rows={2}
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="예) 1등 상품, 꽝"
+                  style={{ resize: 'none', lineHeight: '1.4' }}
                 />
               </Field>
 
