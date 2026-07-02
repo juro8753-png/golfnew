@@ -417,27 +417,6 @@ export default function AdminDashboard() {
                 />
               </Field>
 
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.is_unlimited}
-                    onChange={e => setForm(f => ({ ...f, is_unlimited: e.target.checked }))}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">수량 무제한</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.is_consolation}
-                    onChange={e => setForm(f => ({ ...f, is_consolation: e.target.checked }))}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">꽝 처리 (당첨 아님)</span>
-                </label>
-              </div>
             </div>
 
             {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
