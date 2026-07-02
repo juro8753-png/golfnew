@@ -63,7 +63,7 @@ export default function Home() {
       <img
         src="/roulette-bg.png"
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 0 : 1 }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 0 : 1, transform: 'scaleX(1.15)' }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -84,6 +84,7 @@ export default function Home() {
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         paddingBottom: isPortrait ? '28%' : '9%',
+        marginTop: isPortrait ? 0 : -30,
       }}>
         {loading ? (
           <div style={{ color: 'white', fontSize: 20 }}>불러오는 중…</div>
@@ -103,11 +104,11 @@ export default function Home() {
           onClick={triggerSpin}
           style={{
             position: 'absolute',
-            bottom: isPortrait ? '13%' : '11%',
+            bottom: isPortrait ? '10%' : '13%',
             left: '50%',
             transform: 'translateX(-50%)',
             width: isPortrait ? '80%' : '55%',
-            height: isPortrait ? '13%' : '9%',
+            height: isPortrait ? '13%' : '13%',
             background: 'transparent',
             border: 'none',
             outline: 'none',

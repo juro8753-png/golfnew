@@ -32,6 +32,14 @@ export default function LandingPage() {
   const router = useRouter()
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [bgGradient, setBgGradient] = useState(BG_THEMES.emerald_black.gradient)
+  const [isPortrait, setIsPortrait] = useState(false)
+
+  useEffect(() => {
+    const checkPortrait = () => setIsPortrait(window.innerHeight > window.innerWidth)
+    checkPortrait()
+    window.addEventListener('resize', checkPortrait)
+    return () => window.removeEventListener('resize', checkPortrait)
+  }, [])
 
   useEffect(() => {
     setBgGradient(BG_THEMES[getSavedBg(LANDING_BG_KEY)].gradient)
@@ -111,6 +119,7 @@ export default function LandingPage() {
           </div>
 
           {/* 헤드라인: 날마다 福 */}
+          <div style={{ transform: isPortrait ? 'translateY(-8px)' : 'none', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, lineHeight: 1 }}>
             <span
               style={{
@@ -257,6 +266,7 @@ export default function LandingPage() {
                 ›
               </span>
             </button>
+          </div>
           </div>
         </div>
       </div>

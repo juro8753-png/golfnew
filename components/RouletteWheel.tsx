@@ -1345,7 +1345,7 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
     const applySize = () => {
       const dpr = window.devicePixelRatio || 1
       // 버튼 영역(~100px) 제외한 높이 기준, 최대 700px
-      const displaySize = Math.min(window.innerWidth * 0.90, (window.innerHeight - 160) * 0.88, 700)
+      const displaySize = Math.max(100, Math.min(window.innerWidth * 0.90, (window.innerHeight - 160) * 0.88, 700))
       canvas.width = displaySize * dpr
       canvas.height = displaySize * dpr
       canvas.style.width = `${displaySize}px`
