@@ -395,14 +395,48 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ctx.fillStyle = nameColors[i] ?? '#ffffff'
           ctx.font = `bold ${nameFontSize}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`
           ctx.textAlign = 'center'
-          const words = prize.name.split(' ')
-          if (words.length > 1 && ctx.measureText(prize.name).width > 55 * s) {
-            const mid = Math.ceil(words.length / 2)
-            ctx.fillText(words.slice(0, mid).join(' '), cx_t, nameY - nameFontSize * 0.7)
-            ctx.fillText(words.slice(mid).join(' '), cx_t, nameY + nameFontSize * 0.7)
-          } else {
-            ctx.fillText(prize.name, cx_t, nameY)
+
+          // 세그먼트 가용 너비 (반지름 245에서 60° 세그먼트의 현 길이 × 여유율)
+          const maxW = 120 * s
+
+          // 단어/글자 단위로 maxW 넘으면 다음 줄로
+          const wrapLines = (text: string): string[] => {
+            const tokens = text.split(' ')
+            const lines: string[] = []
+            let cur = ''
+            for (const token of tokens) {
+              const test = cur ? `${cur} ${token}` : token
+              if (ctx.measureText(test).width <= maxW) {
+                cur = test
+              } else {
+                if (cur) lines.push(cur)
+                // 단어 자체가 너무 길면 글자 단위로 쪼갬
+                if (ctx.measureText(token).width > maxW) {
+                  let charBuf = ''
+                  for (const ch of token) {
+                    if (ctx.measureText(charBuf + ch).width <= maxW) {
+                      charBuf += ch
+                    } else {
+                      if (charBuf) lines.push(charBuf)
+                      charBuf = ch
+                    }
+                  }
+                  cur = charBuf
+                } else {
+                  cur = token
+                }
+              }
+            }
+            if (cur) lines.push(cur)
+            return lines
           }
+
+          const lines = wrapLines(prize.name)
+          const lineH = nameFontSize * 1.25
+          const totalH = (lines.length - 1) * lineH
+          lines.forEach((line, li) => {
+            ctx.fillText(line, cx_t, nameY - totalH / 2 + li * lineH)
+          })
 
           ctx.restore()
         })
