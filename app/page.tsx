@@ -47,14 +47,19 @@ export default function LandingPage() {
     fetch('/api/prizes').then(r => r.json()).then(data => {
       if (Array.isArray(data)) sessionStorage.setItem('prizes_cache', JSON.stringify(data))
     }).catch(() => {})
-    // 룰렛 배경 이미지 미리 로드 (캐시 저장)
-    ;['/roulette-bg-portrait.png', '/roulette-bg.png'].forEach(src => {
-      const img = document.createElement('img')
-      img.src = src
-    })
+    // 룰렛 배경 이미지 미리 로드 (3초 후 — 버튼 클릭과 네트워크 충돌 방지)
+    const preloadTimer = setTimeout(() => {
+      ;['/roulette-bg-portrait.png', '/roulette-bg.png'].forEach(src => {
+        const img = document.createElement('img')
+        img.src = src
+      })
+    }, 3000)
     const onChange = () => setIsFullscreen(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', onChange)
-    return () => document.removeEventListener('fullscreenchange', onChange)
+    return () => {
+      clearTimeout(preloadTimer)
+      document.removeEventListener('fullscreenchange', onChange)
+    }
   }, [router])
 
   const toggleFullscreen = async () => {
