@@ -38,6 +38,9 @@ export default function LandingPage() {
   useEffect(() => {
     setBgGradient(BG_THEMES[getSavedBg(LANDING_BG_KEY)].gradient)
     router.prefetch('/roulette')
+    fetch('/api/prizes').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) sessionStorage.setItem('prizes_cache', JSON.stringify(data))
+    }).catch(() => {})
     const onChange = () => setIsFullscreen(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', onChange)
     return () => document.removeEventListener('fullscreenchange', onChange)
