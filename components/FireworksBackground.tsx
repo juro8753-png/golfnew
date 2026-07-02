@@ -38,6 +38,8 @@ export default function FireworksBackground() {
     let stars: Star[] = []
     let frameId: number
     let t = 0
+    let ctx: CanvasRenderingContext2D | null = null
+    const MAX_SPARKS = 280
 
     const init = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -45,7 +47,7 @@ export default function FireworksBackground() {
       const H = canvas.offsetHeight || window.innerHeight
       canvas.width = W * dpr
       canvas.height = H * dpr
-      const ctx = canvas.getContext('2d')
+      ctx = canvas.getContext('2d')
       if (!ctx) return
       ctx.scale(dpr, dpr)
       stars = Array.from({ length: 38 }, () => ({
@@ -71,7 +73,8 @@ export default function FireworksBackground() {
     }
 
     const explode = (x: number, y: number) => {
-      const n = Math.floor(rand(80, 120))
+      if (sparks.length >= MAX_SPARKS) return
+      const n = Math.min(Math.floor(rand(60, 90)), MAX_SPARKS - sparks.length)
       const speed = 5.5
       const ring = Math.random() < 0.4
       for (let i = 0; i < n; i++) {
@@ -90,7 +93,6 @@ export default function FireworksBackground() {
     }
 
     const tick = () => {
-      const ctx = canvas.getContext('2d')
       if (!ctx) { frameId = requestAnimationFrame(tick); return }
 
       const W = canvas.offsetWidth || window.innerWidth

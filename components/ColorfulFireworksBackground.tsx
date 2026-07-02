@@ -47,6 +47,8 @@ export default function ColorfulFireworksBackground() {
     let stars: Star[] = []
     let frameId: number
     let t = 0
+    let ctx: CanvasRenderingContext2D | null = null
+    const MAX_SPARKS = 280
 
     const init = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -54,7 +56,7 @@ export default function ColorfulFireworksBackground() {
       const H = canvas.offsetHeight || window.innerHeight
       canvas.width = W * dpr
       canvas.height = H * dpr
-      const ctx = canvas.getContext('2d')
+      ctx = canvas.getContext('2d')
       if (!ctx) return
       ctx.scale(dpr, dpr)
       stars = Array.from({ length: 45 }, () => ({
@@ -81,7 +83,8 @@ export default function ColorfulFireworksBackground() {
     }
 
     const explode = (x: number, y: number, palette: string[]) => {
-      const n = Math.floor(rand(60, 90))
+      if (sparks.length >= MAX_SPARKS) return
+      const n = Math.min(Math.floor(rand(60, 90)), MAX_SPARKS - sparks.length)
       const speed = 5.5
       const ring = Math.random() < 0.45
       for (let i = 0; i < n; i++) {
@@ -100,7 +103,6 @@ export default function ColorfulFireworksBackground() {
     }
 
     const tick = () => {
-      const ctx = canvas.getContext('2d')
       if (!ctx) { frameId = requestAnimationFrame(tick); return }
 
       const W = canvas.offsetWidth || window.innerWidth
