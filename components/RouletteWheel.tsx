@@ -25,7 +25,7 @@ interface ConfettiParticle {
   opacity: number
 }
 
-const SPIN_DURATION = 7000
+const SPIN_DURATION = 5000
 const MIN_ROTATIONS = 8
 
 function easeOut(t: number): number {
