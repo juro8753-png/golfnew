@@ -48,7 +48,7 @@ export default function LandingPage() {
         height: '100vh',
         overflow: 'hidden',
         cursor: 'pointer',
-        background: '#071a0e',
+        background: '#000000',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
