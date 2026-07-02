@@ -217,24 +217,27 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
         // 4. Golden rod divider spokes (drawn programmatically)
         prizes.forEach((_, i) => {
-          const ea       = -Math.PI / 2 - segAngle / 2 + i * segAngle
-          const outerR   = 390 * s
-          const halfLen  = outerR / 2   // translate to midpoint, then draw ±halfLen
-          const sR = 4.5 * s            // shaft radius
-          const bR = 10  * s            // outer ball radius
-          const cR = 6.5 * s            // collar radius
-          const cH = 8   * s            // collar height
+          const ea      = -Math.PI / 2 - segAngle / 2 + i * segAngle
+          const outerR  = 390 * s
+          const halfLen = outerR / 2
+          const sR = 4.5 * s   // shaft radius
+          const bR = 10  * s   // ball radius
+          const cR = 6.5 * s   // collar radius
+          const cH = 8   * s   // collar height
 
           ctx.save()
           ctx.translate(Math.cos(ea) * halfLen, Math.sin(ea) * halfLen)
           ctx.rotate(ea - Math.PI / 2)
 
-          // Local Y: negative = outer rim, positive = center (hidden under hub)
-          const outerEnd  = -halfLen
-          const collarTop = outerEnd + bR * 1.85
-          const shaftTop  = collarTop + cH
+          // Local Y after rotation: +Y = outward (rim), -Y = inward (center/hub)
+          // innerEnd = -halfLen (center, hidden by hub)
+          // outer tip = +halfLen (rim)
+          const innerEnd    = -halfLen
+          const ballCY      = halfLen - bR           // ball center just inside rim
+          const collarOuter = halfLen - bR * 2       // collar outer edge (below ball)
+          const collarInner = collarOuter - cH       // collar inner edge
 
-          // Cylindrical shading gradient (horizontal, perpendicular to rod axis)
+          // Cylindrical shading gradient (horizontal = perpendicular to rod)
           const cylG = (w: number) => {
             const g = ctx.createLinearGradient(-w, 0, w, 0)
             g.addColorStop(0,    '#fff6c0')
@@ -248,26 +251,26 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             return g
           }
 
-          // ── Shaft ──
+          // ── Shaft (center → collar) ──
           ctx.shadowColor = 'rgba(0,0,0,0.28)'
           ctx.shadowBlur = 4 * s
           ctx.fillStyle = cylG(sR)
-          ctx.fillRect(-sR, shaftTop, sR * 2, halfLen - shaftTop)
+          ctx.fillRect(-sR, innerEnd, sR * 2, collarInner - innerEnd)
 
           // ── Collar ──
           ctx.fillStyle = cylG(cR)
-          ctx.fillRect(-cR, collarTop, cR * 2, cH)
+          ctx.fillRect(-cR, collarInner, cR * 2, cH)
           ctx.shadowBlur = 0
 
-          // Collar top edge highlight
+          // Collar inner edge highlight
           ctx.fillStyle = 'rgba(255,248,160,0.55)'
-          ctx.fillRect(-cR, collarTop, cR * 2, 1.5 * s)
-          // Collar bottom edge shadow
+          ctx.fillRect(-cR, collarInner, cR * 2, 1.5 * s)
+          // Collar outer edge shadow
           ctx.fillStyle = 'rgba(0,0,0,0.28)'
-          ctx.fillRect(-cR, collarTop + cH - 1.5 * s, cR * 2, 1.5 * s)
+          ctx.fillRect(-cR, collarOuter - 1.5 * s, cR * 2, 1.5 * s)
 
           // Rivet dots × 3
-          const dotY = collarTop + cH * 0.5
+          const dotY  = collarInner + cH * 0.5
           const dotXs = [-cR * 0.5, 0, cR * 0.5]
           dotXs.forEach(dx => {
             const dg = ctx.createRadialGradient(dx - 0.4 * s, dotY - 0.4 * s, 0, dx, dotY, 1.4 * s)
@@ -280,7 +283,6 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           })
 
           // ── Outer ball ──
-          const ballCY = outerEnd + bR
           ctx.shadowColor = 'rgba(0,0,0,0.32)'
           ctx.shadowBlur = 6 * s
           const ballG = ctx.createRadialGradient(-bR * 0.3, ballCY - bR * 0.3, bR * 0.04, 0, ballCY, bR)
