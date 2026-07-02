@@ -69,7 +69,7 @@ export default function Home() {
       <img
         src="/roulette-bg-portrait.png"
         alt=""
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 1 : 0 }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', transition: 'opacity 0.4s ease', opacity: isPortrait ? 1 : 0 }}
       />
 
       {/* 폭죽 + 반짝이 */}
