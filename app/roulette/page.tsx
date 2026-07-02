@@ -60,19 +60,21 @@ export default function Home() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#000', fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 배경 이미지 — 방향에 따라 src 전환 */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={isPortrait ? '/roulette-bg-portrait.png' : '/roulette-bg.png'}
-        alt=""
-        style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block',
-          objectFit: isPortrait ? 'cover' : 'contain',
-          objectPosition: 'center',
-          transform: isPortrait ? 'none' : 'scaleX(1.15)',
-          transition: 'opacity 0.3s ease',
-        }}
-      />
+      {/* 배경 이미지 — picture로 방향별 1개만 로드 */}
+      <picture style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <source media="(orientation: portrait)" srcSet="/roulette-bg-portrait.png" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/roulette-bg.png"
+          alt=""
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block',
+            objectFit: isPortrait ? 'cover' : 'contain',
+            objectPosition: 'center',
+            transform: isPortrait ? 'none' : 'scaleX(1.15)',
+          }}
+        />
+      </picture>
 
       {/* 폭죽 + 반짝이 */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
