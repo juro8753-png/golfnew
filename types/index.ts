@@ -6,7 +6,6 @@ export interface Prize {
   is_unlimited: boolean
   is_consolation: boolean
   color: string
-  display_order: number
   probability: number
   created_at: string
   updated_at: string

@@ -13,7 +13,6 @@ const emptyForm = {
   is_unlimited: false,
   is_consolation: false,
   color: '#36A2EB',
-  display_order: '',
 }
 
 type FormState = typeof emptyForm
@@ -119,7 +118,7 @@ export default function AdminDashboard() {
 
   const openAdd = () => {
     setEditing(null)
-    setForm({ ...emptyForm, display_order: String(prizes.length) })
+    setForm({ ...emptyForm })
     setError('')
     setShowModal(true)
   }
@@ -133,7 +132,6 @@ export default function AdminDashboard() {
       is_unlimited: p.is_unlimited,
       is_consolation: p.is_consolation,
       color: p.color,
-      display_order: String(p.display_order),
     })
     setError('')
     setShowModal(true)
@@ -157,7 +155,6 @@ export default function AdminDashboard() {
         is_unlimited: form.is_unlimited,
         is_consolation: form.is_consolation,
         color: form.color,
-        display_order: Number(form.display_order || 0),
         probability: editing ? (editing.probability ?? 0) : 0,
       }
 
@@ -458,15 +455,6 @@ export default function AdminDashboard() {
                     : { ...f, total_quantity: e.target.value, remaining_quantity: e.target.value }
                   )}
                   placeholder="예) 100"
-                />
-              </Field>
-
-              <Field label="표시 순서 (숫자, 낮을수록 먼저)">
-                <input
-                  className="input"
-                  type="number"
-                  value={form.display_order}
-                  onChange={e => setForm(f => ({ ...f, display_order: e.target.value }))}
                 />
               </Field>
 

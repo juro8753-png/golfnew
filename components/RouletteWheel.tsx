@@ -443,7 +443,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
           const drawW = 36 * s
           const drawH = drawW * (gbCanvas.height / gbCanvas.width)
-          const iconY  = nameY + drawH * 0.5 + ([42,29,69,50,69,29][i] ?? 45) * s
+          const iconY  = nameY + drawH * 0.5 + ([42,25,69,50,69,25][i] ?? 45) * s
 
           const iconXOff = ([0, 18, 18, 0, -18, -18][i] ?? 0) * s
           ctx.save()
@@ -461,8 +461,9 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const contentR = 245 * s
           const cx_t = Math.cos(midAngle) * contentR
           const cy_t = Math.sin(midAngle) * contentR
-          const rankY = cy_t - nameFontSize * 0.7   // 등수: 중심보다 약간 위
-          const nameY = cy_t + numFontSize * 0.65   // 상품명: 등수 바로 아래
+          const textYOff = ([0, -30, 0, 0, 0, -30][i] ?? 0) * s
+          const rankY = cy_t - nameFontSize * 0.7 + textYOff
+          const nameY = cy_t + numFontSize * 0.65 + textYOff
           // 세그먼트별 텍스트 미세 X 조정 (2등·3등 우측, 5등·행운상 좌측)
           const textXOff = ([0, 12, 12, 0, -12, -12][i] ?? 0) * s
 
@@ -576,7 +577,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             const starCX = Math.cos(midAngle) * starR
             const starCY = Math.sin(midAngle) * starR
             ctx.save()
-            ctx.translate(starCX + 100 * s, starCY - 30 * s)
+            ctx.translate(starCX + 100 * s, starCY - 30 * s - 30 * s)
             ctx.drawImage(starCanvasRef.current, -starSize / 2, -starSize / 2, starSize, starSize)
             ctx.restore()
           }
@@ -1272,7 +1273,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           setResult(response)
           setShowModal(true)
 
-          const nonConsolation = prizes.filter(p => !p.is_consolation).sort((a, b) => a.display_order - b.display_order)
+          const nonConsolation = prizes.filter(p => !p.is_consolation).sort((a, b) => a.id - b.id)
           const rank = nonConsolation.findIndex(p => p.id === response.prize.id)
 
           if (response.prize.is_consolation) {
@@ -1290,9 +1291,18 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
             soundEngine.bgDuck(4500)
             soundEngine.winNormal()
             soundEngine.playTTS('/sounds/tts_3rd.mp3', 500)
-          } else {
-            soundEngine.bgDuck(3500)
+          } else if (rank === 3) {
+            soundEngine.bgDuck(4000)
             soundEngine.winNormal()
+            soundEngine.playTTS('/sounds/narration_4th.mp3', 500)
+          } else if (rank === 4) {
+            soundEngine.bgDuck(4000)
+            soundEngine.winNormal()
+            soundEngine.playTTS('/sounds/narration_5th.mp3', 500)
+          } else {
+            soundEngine.bgDuck(4500)
+            soundEngine.winNormal()
+            soundEngine.playTTS('/sounds/narration_lucky.mp3', 500)
           }
           if (!response.prize.is_consolation) startConfetti()
           setTodayCount(c => c + 1)
@@ -1332,6 +1342,14 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
   }
 
   const isWin = result && !result.prize.is_consolation
+
+  const winRankLabel = (() => {
+    if (!result) return ''
+    const sorted = [...prizes].sort((a, b) => a.id - b.id)
+    const idx = sorted.findIndex(p => p.id === result.prize.id)
+    if (idx < 0) return result.prize.name
+    return (['1등','2등','3등','4등','5등','행운상'][idx]) ?? `${idx + 1}등`
+  })()
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 w-full h-full">
@@ -1457,40 +1475,99 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
       {/* 결과 모달 */}
       {showModal && result && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-6"
-          style={{ backdropFilter: 'blur(6px)' }}
+          className="fixed inset-0 flex items-center justify-center z-50 px-6"
+          style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(6px)' }}
           onClick={() => setShowModal(false)}
         >
-          <div
-            className={`modal-bounce-in bg-white rounded-3xl p-10 w-full max-w-xs text-center shadow-2xl ${isWin ? 'win-glow' : ''}`}
-            onClick={e => e.stopPropagation()}
-          >
-            {result.prize.is_consolation ? (
-              <>
-                <div className="text-7xl mb-3 consolation-shake inline-block">😢</div>
-                <p className="text-2xl text-gray-500 mb-1">아쉽네요</p>
-                <p className="text-5xl font-black text-gray-400 mb-6">꽝!</p>
-              </>
-            ) : (
-              <>
-                <div className="text-7xl mb-3" style={{ filter: 'drop-shadow(0 0 14px gold)' }}>🎉</div>
-                <p className="text-2xl text-green-600 font-bold mb-1">축하합니다!</p>
-                <p
-                  className="text-4xl font-black mb-1"
-                  style={{ color: result.prize.color, textShadow: `0 0 18px ${result.prize.color}` }}
-                >
-                  {result.prize.name}
-                </p>
-                <p className="text-gray-500 mb-6">당첨되셨습니다!</p>
-              </>
-            )}
-            <button
-              onClick={() => router.push('/')}
-              className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl transition-colors"
+          {result.prize.is_consolation ? (
+            /* ── 꽝 모달 (기존 스타일 유지) ── */
+            <div
+              className="modal-bounce-in bg-white rounded-3xl p-10 w-full max-w-xs text-center shadow-2xl"
+              onClick={e => e.stopPropagation()}
             >
-              확인
-            </button>
-          </div>
+              <div className="text-7xl mb-3 consolation-shake inline-block">😢</div>
+              <p className="text-2xl text-gray-500 mb-1">아쉽네요</p>
+              <p className="text-5xl font-black text-gray-400 mb-6">꽝!</p>
+              <button
+                onClick={() => router.push('/')}
+                className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl transition-colors"
+              >
+                확인
+              </button>
+            </div>
+          ) : (
+            /* ── 당첨 모달 (새 디자인) ── */
+                <div
+                  className="modal-bounce-in win-glow"
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: 360,
+                    borderRadius: 20,
+                    padding: '24px 24px 28px',
+                    overflow: 'hidden',
+                    boxShadow: '0 22px 50px rgba(20,10,0,.55)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 16,
+                    background: [
+                      'radial-gradient(circle at 22% 16%, rgba(255,214,120,.22), transparent 9%)',
+                      'radial-gradient(circle at 82% 22%, rgba(255,214,120,.16), transparent 11%)',
+                      'radial-gradient(circle at 50% 118%, rgba(150,80,20,.55), transparent 60%)',
+                      'radial-gradient(circle at 50% 38%, #402a13 0%, #1c1006 68%, #0c0704 100%)',
+                    ].join(','),
+                  }}
+                >
+                  {/* 콘페티 조각들 */}
+                  <div style={{ position:'absolute', top:96, left:20, width:8, height:8, borderRadius:2, background:'#f6d36a', transform:'rotate(28deg)', opacity:.75 }} />
+                  <div style={{ position:'absolute', top:150, right:24, width:7, height:7, borderRadius:2, background:'#e7b84a', transform:'rotate(-20deg)', opacity:.7 }} />
+                  <div style={{ position:'absolute', bottom:96, left:34, width:6, height:6, borderRadius:'50%', background:'#fbe38e', opacity:.7 }} />
+                  <div style={{ position:'absolute', bottom:120, right:38, width:9, height:5, borderRadius:2, background:'#d8a83c', transform:'rotate(40deg)', opacity:.65 }} />
+
+                  {/* 리본 배너 — 축하합니다! */}
+                  <div style={{ position:'relative', zIndex:3, display:'flex', justifyContent:'center' }}>
+                    <div style={{ position:'relative' }}>
+                      <div style={{ position:'absolute', top:8, left:-26, width:30, height:34, background:'linear-gradient(180deg,#9c1218,#680b0f)', clipPath:'polygon(100% 0, 100% 100%, 0 100%, 50% 50%, 0 0)', boxShadow:'0 4px 8px rgba(0,0,0,.4)' }} />
+                      <div style={{ position:'absolute', top:8, right:-26, width:30, height:34, background:'linear-gradient(180deg,#9c1218,#680b0f)', clipPath:'polygon(0 0, 0 100%, 100% 100%, 50% 50%, 100% 0)', boxShadow:'0 4px 8px rgba(0,0,0,.4)' }} />
+                      <div style={{ position:'relative', zIndex:1, borderRadius:11, padding:2, background:'linear-gradient(135deg,#fbe9a6,#d9a93c 42%,#a9760f 72%,#fbe9a6)', boxShadow:'0 8px 18px rgba(0,0,0,.35)' }}>
+                        <div style={{ borderRadius:9, padding:'11px 36px', background:'linear-gradient(180deg,#d21920,#8f0f13)', fontFamily:"'Black Han Sans','Noto Sans KR',sans-serif", fontSize:24, letterSpacing:1, color:'#fff', textShadow:'0 2px 3px rgba(0,0,0,.45)', whiteSpace:'nowrap' }}>
+                          축하합니다!
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 상품 카드 */}
+                  <div style={{ position:'relative', zIndex:2, borderRadius:18, padding:3, background:'linear-gradient(135deg,#fbe9a6,#d9a93c 40%,#a9760f 70%,#fbe9a6)', boxShadow:'0 0 24px rgba(230,180,70,.28)' }}>
+                    <div style={{ borderRadius:15, padding:'20px 16px', background:'linear-gradient(160deg,#2c1c0e,#160c05)', display:'flex', alignItems:'center', gap:8, boxShadow:'inset 0 0 22px rgba(0,0,0,.55)' }}>
+                      <div style={{ flex:'0 0 auto', width:80, textAlign:'center' }}>
+                        <div style={{ fontSize:64, lineHeight:1, filter:'drop-shadow(0 6px 10px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(240,190,80,.4))' }}>🏆</div>
+                      </div>
+                      <div style={{ flex:'1 1 auto', textAlign:'center' }}>
+                        <div style={{ fontFamily:"'Black Han Sans','Noto Sans KR',sans-serif", fontSize:28, lineHeight:1, color:'#fff', textShadow:'0 2px 4px rgba(0,0,0,.4)' }}>{winRankLabel}</div>
+                        <div style={{ fontFamily:"'Black Han Sans','Noto Sans KR',sans-serif", fontSize:32, lineHeight:1.1, margin:'6px 0 4px', background:'linear-gradient(180deg,#fdecac,#ecc35e 52%,#c4901c)', WebkitBackgroundClip:'text', backgroundClip:'text', WebkitTextFillColor:'transparent', color:'transparent' }}>{result.prize.name}</div>
+                        <div style={{ fontFamily:"'Black Han Sans','Noto Sans KR',sans-serif", fontSize:24, lineHeight:1, color:'#fff', textShadow:'0 2px 4px rgba(0,0,0,.4)' }}>당첨!</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 서브타이틀 */}
+                  <div style={{ position:'relative', zIndex:2, textAlign:'center', margin:'16px 0 14px', fontWeight:700, fontSize:14, color:'#f0cf7e', textShadow:'0 1px 3px rgba(0,0,0,.5)', fontFamily:"'Noto Sans KR',sans-serif" }}>
+                    오늘의 행운이 당신을 찾아왔습니다!
+                  </div>
+
+                  {/* 버튼 */}
+                  <div style={{ position:'relative', zIndex:2, display:'flex', justifyContent:'center' }}>
+                    <button
+                      onClick={() => router.push('/')}
+                      style={{ minWidth:200, borderRadius:999, padding:'14px 32px', background:'linear-gradient(180deg,#fdedb0,#ecc55f 46%,#cf9a2c)', color:'#5b3a05', fontFamily:"'Noto Sans KR',sans-serif", fontWeight:900, fontSize:20, letterSpacing:1, boxShadow:'0 8px 20px rgba(220,170,60,.45), inset 0 1px 1px rgba(255,255,255,.7)', border:'1px solid #b98a1f', cursor:'pointer' }}
+                    >
+                      직원 확인하기
+                    </button>
+                  </div>
+                </div>
+          )}
         </div>
       )}
     </div>

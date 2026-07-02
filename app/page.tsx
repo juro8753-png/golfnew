@@ -179,7 +179,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 22 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/laurel-branch.png"
+              src="/laurel2.png"
               alt=""
               style={{
                 height: 22,
@@ -199,7 +199,7 @@ export default function LandingPage() {
             </span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/laurel-branch.png"
+              src="/laurel2.png"
               alt=""
               style={{
                 height: 22,

@@ -7,7 +7,6 @@ CREATE TABLE prizes (
   is_unlimited     BOOLEAN      NOT NULL DEFAULT FALSE,
   is_consolation   BOOLEAN      NOT NULL DEFAULT FALSE,  -- true = 꽝 (당첨 아님)
   color            VARCHAR(7)   NOT NULL DEFAULT '#36A2EB',
-  display_order    INTEGER      NOT NULL DEFAULT 0,
   created_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
@@ -15,7 +14,7 @@ CREATE TABLE prizes (
 -- 추첨 결과 테이블
 CREATE TABLE spin_results (
   id         SERIAL PRIMARY KEY,
-  prize_id   INTEGER      NOT NULL REFERENCES prizes(id),
+  prize_id   INTEGER      REFERENCES prizes(id) ON DELETE SET NULL,
   prize_name VARCHAR(255) NOT NULL,
   is_winner  BOOLEAN      NOT NULL DEFAULT FALSE,
   spun_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()

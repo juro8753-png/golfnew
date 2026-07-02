@@ -14,7 +14,7 @@ export default function Home() {
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [loading, setLoading] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [bgGradient, setBgGradient] = useState(BG_THEMES.purple_original.gradient)
+  const [bgGradient, setBgGradient] = useState(BG_THEMES.indigo_black.gradient)
 
   const fetchPrizes = useCallback(async () => {
     try {
@@ -97,7 +97,7 @@ export default function Home() {
           <div style={{ color: '#f4c64a', fontSize: 18 }}>등록된 상품이 없습니다.</div>
         ) : (
           <div className="relative flex items-center justify-center w-full">
-            <SunRaysEffect />
+            {/* <SunRaysEffect /> */}
             <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
               <RouletteWheel prizes={prizes} onSpinComplete={fetchPrizes} />
             </div>

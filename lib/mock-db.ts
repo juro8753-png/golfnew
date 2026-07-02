@@ -7,7 +7,7 @@ export const db = {
       const { data, error } = await supabaseAdmin
         .from('prizes')
         .select('*')
-        .order('display_order', { ascending: true })
+        .order('id', { ascending: true })
       if (error) throw new Error(error.message)
       return data as Prize[]
     },
