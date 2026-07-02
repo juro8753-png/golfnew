@@ -879,19 +879,27 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
     [prizes, theme]
   )
 
-  // 캔버스 크기 설정
+  // 캔버스 크기 설정 (resize 대응)
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const dpr = window.devicePixelRatio || 1
-    const displaySize = Math.min(window.innerWidth * 0.90, 480)
-    canvas.width = displaySize * dpr
-    canvas.height = displaySize * dpr
-    canvas.style.width = `${displaySize}px`
-    canvas.style.height = `${displaySize}px`
-    const ctx = canvas.getContext('2d')
-    ctx?.scale(dpr, dpr)
-    drawWheel(rotationRef.current)
+
+    const applySize = () => {
+      const dpr = window.devicePixelRatio || 1
+      // 화면 너비 90%, 높이 75% 중 작은 값, 최대 700px
+      const displaySize = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.75, 700)
+      canvas.width = displaySize * dpr
+      canvas.height = displaySize * dpr
+      canvas.style.width = `${displaySize}px`
+      canvas.style.height = `${displaySize}px`
+      const ctx = canvas.getContext('2d')
+      ctx?.scale(dpr, dpr)
+      drawWheel(rotationRef.current)
+    }
+
+    applySize()
+    window.addEventListener('resize', applySize)
+    return () => window.removeEventListener('resize', applySize)
   }, [prizes, drawWheel])
 
   // 비회전 상태에서 LED 깜빡임을 위한 idle 루프
