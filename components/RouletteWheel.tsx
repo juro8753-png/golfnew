@@ -336,15 +336,16 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           const collarOuter = halfLen - bR * 2       // collar outer edge (below ball)
           const collarInner = collarOuter - cH       // collar inner edge
 
-          // Cylindrical shading gradient — 전구처럼 밝은 노란빛
+          // Cylindrical shading gradient — 중앙 하이라이트, 테두리로 갈수록 어두운 그림자
           const cylG = (w: number) => {
             const g = ctx.createLinearGradient(-w, 0, w, 0)
-            g.addColorStop(0,    '#ffffff')
-            g.addColorStop(0.20, '#ffe8a0')
-            g.addColorStop(0.45, '#ffcc44')
-            g.addColorStop(0.55, '#ffcc44')
-            g.addColorStop(0.80, '#ffe8a0')
-            g.addColorStop(1,    '#ffffff')
+            g.addColorStop(0,    '#3a2000')   // 왼쪽 테두리: 짙은 그림자
+            g.addColorStop(0.18, '#8a5c10')   // 반그림자
+            g.addColorStop(0.38, '#e0aa30')   // 빛받는 면
+            g.addColorStop(0.50, '#fff8d0')   // 중앙 하이라이트 (가장 밝음)
+            g.addColorStop(0.62, '#e0aa30')   // 빛받는 면
+            g.addColorStop(0.82, '#8a5c10')   // 반그림자
+            g.addColorStop(1,    '#3a2000')   // 오른쪽 테두리: 짙은 그림자
             return g
           }
 
@@ -358,6 +359,22 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           ctx.fillStyle = cylG(cR)
           ctx.fillRect(-cR, collarInner, cR * 2, cH)
           ctx.shadowBlur = 0
+
+          // ── 축방향 음영: 중심(허브)쪽 밝고 림쪽으로 갈수록 어두워짐 ──
+          const shaftDepth = ctx.createLinearGradient(0, innerEnd, 0, collarOuter)
+          shaftDepth.addColorStop(0,    'rgba(255,255,255,0.26)')
+          shaftDepth.addColorStop(0.30, 'rgba(255,255,255,0.08)')
+          shaftDepth.addColorStop(0.60, 'rgba(0,0,0,0.08)')
+          shaftDepth.addColorStop(1,    'rgba(0,0,0,0.32)')
+          ctx.fillStyle = shaftDepth
+          ctx.fillRect(-sR, innerEnd, sR * 2, collarInner - innerEnd)
+
+          // 칼라 축방향 음영
+          const collarDepth = ctx.createLinearGradient(0, collarInner, 0, collarOuter)
+          collarDepth.addColorStop(0, 'rgba(255,255,255,0.14)')
+          collarDepth.addColorStop(1, 'rgba(0,0,0,0.24)')
+          ctx.fillStyle = collarDepth
+          ctx.fillRect(-cR, collarInner, cR * 2, cH)
 
           // Collar inner edge highlight
           ctx.fillStyle = 'rgba(255,248,160,0.55)'
