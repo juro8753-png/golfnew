@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { soundEngine } from '@/lib/sounds'
+import ColorfulFireworksBackground from '@/components/ColorfulFireworksBackground'
+import SparklesOverlay from '@/components/SparklesOverlay'
 
 function playChime() {
   const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
@@ -60,6 +62,12 @@ export default function LandingPage() {
         alt="날마다 福 나눔 이벤트"
         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
       />
+
+      {/* 폭죽 + 반짝이 오버레이 */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
+        <ColorfulFireworksBackground />
+        <SparklesOverlay />
+      </div>
     </div>
   )
 }
