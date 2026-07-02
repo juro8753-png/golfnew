@@ -147,36 +147,42 @@ export default function AdminDashboard() {
     setSaving(true)
     setError('')
 
-    const body = {
-      name: form.name,
-      total_quantity: Number(form.total_quantity),
-      remaining_quantity: editing
-        ? Number(form.remaining_quantity)
-        : Number(form.total_quantity),
-      is_unlimited: form.is_unlimited,
-      is_consolation: form.is_consolation,
-      color: form.color,
-      display_order: Number(form.display_order || 0),
-      probability: editing ? (editing.probability ?? 0) : 0,
+    try {
+      const body = {
+        name: form.name,
+        total_quantity: Number(form.total_quantity),
+        remaining_quantity: editing
+          ? Number(form.remaining_quantity)
+          : Number(form.total_quantity),
+        is_unlimited: form.is_unlimited,
+        is_consolation: form.is_consolation,
+        color: form.color,
+        display_order: Number(form.display_order || 0),
+        probability: editing ? (editing.probability ?? 0) : 0,
+      }
+
+      const url = editing ? `/api/admin/prizes/${editing.id}` : '/api/admin/prizes'
+      const method = editing ? 'PUT' : 'POST'
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (res.ok) {
+        setShowModal(false)
+        fetchAll()
+      } else {
+        let msg = '저장 실패'
+        try { msg = (await res.json()).error || msg } catch {}
+        setError(msg)
+      }
+    } catch (e) {
+      setError((e as Error).message || '네트워크 오류가 발생했습니다.')
+    } finally {
+      setSaving(false)
     }
-
-    const url = editing ? `/api/admin/prizes/${editing.id}` : '/api/admin/prizes'
-    const method = editing ? 'PUT' : 'POST'
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    if (res.ok) {
-      setShowModal(false)
-      fetchAll()
-    } else {
-      const data = await res.json()
-      setError(data.error || '저장 실패')
-    }
-    setSaving(false)
   }
 
   const handleDelete = async (id: number) => {
