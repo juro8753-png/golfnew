@@ -427,9 +427,10 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           ['#ffffff', '#d0f4ff', '#a0e8ff'],
         ]
         const nameColors = ['#f0d8ff', '#392205', '#e7c9a8', '#e7c9a8', '#3a1200', '#c0f0ff']
-        const numFontSize = 36
-        const sfxFontSize = 30
-        const nameFontSize = 15
+        const mobileShrink = size < 500 ? 0.7 : 1
+        const numFontSize = Math.round(36 * mobileShrink)
+        const sfxFontSize = Math.round(30 * mobileShrink)
+        const nameFontSize = Math.round(15 * mobileShrink)
 
         // 선물박스 아이콘 (보라 세그먼트, 상품명 아래)
         prizes.forEach((_, i) => {
