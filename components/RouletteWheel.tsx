@@ -53,6 +53,30 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
   const laurelCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const giftBoxCanvasesRef = useRef<(HTMLCanvasElement | null)[]>([null, null, null, null, null, null])
   const starCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const shadowBlobsRef = useRef<Array<{ angle: number; dist: number; radius: number; dark: boolean; alpha: number }>>([])
+
+  if (shadowBlobsRef.current.length === 0) {
+    // 허브 주변 밝은 블롭 3개 고정
+    for (let i = 0; i < 3; i++) {
+      shadowBlobsRef.current.push({
+        angle:  (i / 3) * Math.PI * 2,
+        dist:   0.08 + Math.random() * 0.22,
+        radius: 0.28 + Math.random() * 0.18,
+        dark:   false,
+        alpha:  0.18 + Math.random() * 0.16,
+      })
+    }
+    // 나머지 랜덤 블롭 — 밝은 것 위주
+    for (let i = 0; i < 16; i++) {
+      shadowBlobsRef.current.push({
+        angle:  Math.random() * Math.PI * 2,
+        dist:   0.10 + Math.random() * 0.80,
+        radius: 0.16 + Math.random() * 0.30,
+        dark:   Math.random() > 0.65,   // 35%만 어두움, 65% 밝음
+        alpha:  0.07 + Math.random() * 0.16,
+      })
+    }
+  }
   const router = useRouter()
 
   useEffect(() => {
@@ -327,6 +351,28 @@ export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }:
           }
 
         })
+
+        // 3-b. 랜덤 밝기 블롭 (밝은 곳 / 어두운 곳 섞어서 자연스러운 불규칙 음영)
+        {
+          ctx.save()
+          ctx.beginPath()
+          ctx.arc(0, 0, 388 * s, 0, Math.PI * 2)
+          ctx.clip()
+          shadowBlobsRef.current.forEach(b => {
+            const bx = Math.cos(b.angle) * b.dist * 390 * s
+            const by = Math.sin(b.angle) * b.dist * 390 * s
+            const br = b.radius * 390 * s
+            const grad = ctx.createRadialGradient(bx, by, 0, bx, by, br)
+            const col = b.dark
+              ? `rgba(0,0,0,${(b.alpha * 0.65).toFixed(3)})`
+              : `rgba(255,248,200,${b.alpha})`
+            grad.addColorStop(0, col)
+            grad.addColorStop(1, 'rgba(0,0,0,0)')
+            ctx.fillStyle = grad
+            ctx.fillRect(-390 * s, -390 * s, 780 * s, 780 * s)
+          })
+          ctx.restore()
+        }
 
         // 4. Golden rod divider spokes (drawn programmatically)
         prizes.forEach((_, i) => {
