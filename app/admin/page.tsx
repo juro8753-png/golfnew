@@ -349,7 +349,7 @@ export default function AdminDashboard() {
       {/* 일별 참여 제한 달력 */}
       <DailyLimitCalendar />
 
-      {/* 배경 색상 선택 */}
+      {/* 배경 색상 선택 — 비활성화
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-gray-800">배경 색상</h2>
         {([
@@ -384,6 +384,7 @@ export default function AdminDashboard() {
           </div>
         ))}
       </div>
+      */}
 
       {/* 상품 추가/수정 모달 */}
       {showModal && (
