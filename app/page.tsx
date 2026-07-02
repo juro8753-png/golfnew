@@ -41,31 +41,24 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', cursor: 'pointer' }}>
-      {/* 배경 이미지 */}
+    <div
+      onClick={handleClick}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        background: '#071a0e',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/landing.jpg"
         alt="날마다 福 나눔 이벤트"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
-      />
-
-      {/* 버튼 투명 클릭 영역 (이미지 하단 버튼 위치) */}
-      <button
-        onClick={handleClick}
-        style={{
-          position: 'absolute',
-          bottom: '13%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '52%',
-          height: '11%',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-        aria-label="이벤트 참여하기"
+        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
       />
     </div>
   )
