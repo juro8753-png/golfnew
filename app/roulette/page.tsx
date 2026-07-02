@@ -11,6 +11,7 @@ export default function Home() {
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [loading, setLoading] = useState(true)
   const [isPortrait, setIsPortrait] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const check = () => setIsPortrait(window.innerHeight > window.innerWidth)
@@ -84,13 +85,13 @@ export default function Home() {
         ) : (
           <div style={{ width: '100%' }}>
             <style>{`#roulette-spin-btn { display: none !important; }`}</style>
-            <RouletteWheel prizes={prizes} onSpinComplete={fetchPrizes} />
+            <RouletteWheel prizes={prizes} onSpinComplete={fetchPrizes} onModalChange={setModalOpen} />
           </div>
         )}
       </div>
 
       {/* 이미지 버튼 위 투명 클릭 영역 */}
-      {prizes.length > 0 && (
+      {prizes.length > 0 && !modalOpen && (
         <button
           onClick={triggerSpin}
           style={{

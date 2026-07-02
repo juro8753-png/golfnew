@@ -14,6 +14,7 @@ function getKSTToday(): string {
 interface Props {
   prizes: Prize[]
   onSpinComplete: () => void
+  onModalChange?: (open: boolean) => void
 }
 
 interface ConfettiParticle {
@@ -31,7 +32,7 @@ function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 4)
 }
 
-export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
+export default function RouletteWheel({ prizes, onSpinComplete, onModalChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null)
   const confettiAnimRef = useRef<number>()
@@ -1210,6 +1211,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
 
     setSpinning(true)
     setShowModal(false)
+    onModalChange?.(false)
 
     const n = prizes.length
     const segAngle = (2 * Math.PI) / n
@@ -1274,6 +1276,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
           const response = apiResult
           setResult(response)
           setShowModal(true)
+          onModalChange?.(true)
 
           const nonConsolation = prizes.filter(p => !p.is_consolation).sort((a, b) => a.id - b.id)
           const rank = nonConsolation.findIndex(p => p.id === response.prize.id)
@@ -1403,7 +1406,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
       <button
         id="roulette-spin-btn"
         onClick={spin}
-        disabled={spinning || showModal}
+        disabled={spinning}
         className="relative select-none overflow-hidden"
         style={{
           width: '100%', maxWidth: 300,
@@ -1480,7 +1483,7 @@ export default function RouletteWheel({ prizes, onSpinComplete }: Props) {
         <div
           className="fixed inset-0 flex items-center justify-center z-50 px-6"
           style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(6px)' }}
-          onClick={() => setShowModal(false)}
+          onClick={() => { setShowModal(false); onModalChange?.(false) }}
         >
           {result.prize.is_consolation ? (
             /* ── 꽝 모달 (기존 스타일 유지) ── */
